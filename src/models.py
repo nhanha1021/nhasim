@@ -4,7 +4,7 @@ class Player(object):
 		self.firstName = firstName
 		self.lastName = lastName
 
-	def getFullName(self):
+	def fullName(self):
 		return ("%s %s") % (self.firstName, self.lastName)
 
 class Team(object):

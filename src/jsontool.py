@@ -1,10 +1,11 @@
 import json
 from models import Player
+from models import Team
 
 FIRSTNAME_LABEL = "firstName"
 LASTNAME_LABEL = "lastName"
-
-
+TEAMNAME_LABEL = "teamName"
+ROSTER_LABEL = "roster"
 
 def PlayerToJson(player):
 	
@@ -15,14 +16,31 @@ def PlayerToJson(player):
 	return data
 
 def JsonToPlayer(data):
-	
-	return Player(data[FIRSTNAME_LABEL], data[LASTNAME_LABEL])
+
+	firstName = data[FIRSTNAME_LABEL]
+	lastName = data[LASTNAME_LABEL]
+	return Player(firstName,lastName)
 
 def TeamToJson(team):
 
-	pass
+	data = {
+		TEAMNAME_LABEL : team.teamName
+	}
+	roster = []
+	for player in team.roster:
+		roster.append(PlayerToJson(player))
+	data[ROSTER_LABEL] = roster
+	return data
 
 def JsonToTeam(data):
 
-	pass
+	teamName = data[TEAMNAME_LABEL]
+	jsonroster = data[ROSTER_LABEL]
+	roster = []
+	for jsonplayer in jsonroster:
+		roster.append(JsonToPlayer(jsonplayer))
+	return Team(teamName, roster)
+
+
+
 
