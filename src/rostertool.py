@@ -2,8 +2,8 @@ from models import Player
 import json
 import jsontool
 
-PLAYER_DATA_PATH = "/Users/johnshea/Repos/app/player_data/"
-TEAM_DATA_PATH = "/Users/johnshea/Repos/app/team_data/"
+PLAYER_DATA_PATH = "/Users/johnshea/Repos/nhasim_python/player_data/"
+TEAM_DATA_PATH = "/Users/johnshea/Repos/nhasim_python/team_data/"
 
 def writePlayer(player):
 
