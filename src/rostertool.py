@@ -1,10 +1,12 @@
 from models import Player
 from models import Team
+from models import League
 import json
 import jsontool
 
 PLAYER_DATA_PATH = "/Users/johnshea/Repos/nhasim_python/player_data/"
 TEAM_DATA_PATH = "/Users/johnshea/Repos/nhasim_python/team_data/"
+LEAGUE_DATA_PATH = "/Users/johnshea/Repos/nhasim_python/league_data/"
 
 def writePlayer(player):
 
@@ -33,6 +35,19 @@ def loadTeam(teamName):
 	with open(TEAM_DATA_PATH+filename,'r') as datafile:
 		data = json.load(datafile)
 		return jsontool.JsonToTeam(data)
+
+def writeLeague(league):
+
+	data = jsontool.LeagueToJson(league)
+	filename = formatName(league.leagueName)
+	with open(TEAM_DATA_PATH+filename,'r') as datafile:
+		json.dump(data, datafile)
+
+def loadLeague(leagueName):
+	filename = formatName(leagueName)
+	with open(LEAGUE_DATA_PATH+filename,'r') as datafile:
+		data = json.load(datafile)
+		return jsontool.JsonToLeague(data)
 
 def formatName(name):
 

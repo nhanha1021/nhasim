@@ -12,3 +12,10 @@ class Team(object):
 	def __init__(self, teamName, roster):
 		self.teamName = teamName
 		self.roster = roster
+
+class League(object):
+
+	def __init__(self, leagueName, teamRoster):
+		self.leagueName = leagueName
+		self.teamRoster = teamRoster
+

@@ -1,5 +1,6 @@
 from models import Player
 from models import Team
+from models import League
 import rostertool
 import json
 
@@ -12,10 +13,18 @@ import json
 # roster = [p1, p2,p3,p4]
 
 # t1 = Team("Puffton389", roster)
+# t2 = Team("Frallo2", roster)
 
-# rostertool.writeTeam(t1)
+# teamRoster = [t1,t2]
 
-t1 = rostertool.loadTeam("Puffton389")
-print t1.teamName
-for player in t1.roster:
-	print player.fullName()
+# league = League("UMASS", teamRoster)
+
+# rostertool.writeLeague(league)
+
+league = rostertool.loadLeague("UMASS")
+print league.leagueName
+
+for team in league.teamRoster:
+	print team.teamName
+	for player in team.roster:
+		print player.fullName()

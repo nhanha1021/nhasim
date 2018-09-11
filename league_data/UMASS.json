@@ -1,0 +1,47 @@
+{
+  "leagueName": "UMASS",
+  "teamRoster": [
+    {
+      "teamName": "Puffton389",
+      "roster": [
+        {
+          "lastName": "Shea",
+          "firstName": "John"
+        },
+        {
+          "lastName": "Lassi",
+          "firstName": "Mykaela"
+        },
+        {
+          "lastName": "Barker",
+          "firstName": "Sean"
+        },
+        {
+          "lastName": "Perkins",
+          "firstName": "Jackson"
+        }
+      ]
+    },
+    {
+      "teamName": "Frallo2",
+      "roster": [
+        {
+          "lastName": "Shea",
+          "firstName": "John"
+        },
+        {
+          "lastName": "Lassi",
+          "firstName": "Mykaela"
+        },
+        {
+          "lastName": "Lassi",
+          "firstName": "Bailey"
+        },
+        {
+          "lastName": "Lassi",
+          "firstName": "Bentley"
+        }
+      ]
+    }
+  ]
+}
