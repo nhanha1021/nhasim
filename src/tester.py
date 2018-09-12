@@ -1,9 +1,8 @@
 from models import Player
 from models import Team
 from models import League
-import rostertool
+import rostertool, randomname
 import json
-
 
 # p1 = Player("John", "Shea")
 # p2 = Player("Mykaela", "Lassi")
@@ -17,14 +16,4 @@ import json
 
 # teamRoster = [t1,t2]
 
-# league = League("UMASS", teamRoster)
-
-# rostertool.writeLeague(league)
-
-league = rostertool.loadLeague("UMASS")
-print league.leagueName
-
-for team in league.teamRoster:
-	print team.teamName
-	for player in team.roster:
-		print player.fullName()
+print randomname.getFullName()
