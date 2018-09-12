@@ -4,16 +4,21 @@ from models import League
 import rostertool, randomname
 import json
 
-# p1 = Player("John", "Shea")
-# p2 = Player("Mykaela", "Lassi")
-# p3 = Player("Sean", "Barker")
-# p4 = Player("Jackson", "Perkins")
+leagueName = "USFL"
+teamNames = ["Boston","New York","Philadelphia","New Jersey",
+"Washington","Miami","Chicago","Cleveland",
+"Los Angeles","San Francisco","San Diego","Seattle",
+"Texas","Colorado","Phoenix","San Antonio"]
 
-# roster = [p1, p2,p3,p4]
+teamRoster = []
 
-# t1 = Team("Puffton389", roster)
-# t2 = Team("Frallo2", roster)
+for name in teamNames:
+	roster = []
+	for i in range(10):
+		roster.append(rostertool.createRandomPlayer())
+	teamRoster.append(Team(name,roster))
 
-# teamRoster = [t1,t2]
+league = League(leagueName, teamRoster)
+rostertool.writeLeague(league)
 
-print randomname.getFullName()
+
