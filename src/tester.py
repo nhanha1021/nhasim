@@ -25,6 +25,11 @@ import json, rostertool, sys
 # league = League(leagueName, teamRoster)
 # rostertool.writeLeague(league)
 
+def getInput():
+	inp = raw_input(">")
+	inp = inp.rstrip().lstrip()
+	return inp
+
 def printHeader(teamname):
 	print ("--------------------------------------")
 	print (teamname)
@@ -33,7 +38,7 @@ def printHeader(teamname):
 system("clear")
 league = rostertool.loadLeague(sys.argv[1])
 while(True):
-	inp = raw_input(">").rstrip().lstrip()
+	inp = getInput()
 	system("clear")
 	if(inp == "quit"):
 		break
