@@ -1,7 +1,7 @@
 from models import Player
 from models import Team
 from models import League
-import json, jsontool, randomname
+import json, jsontool, randomname, random
 
 PLAYER_DATA_PATH = "/Users/johnshea/Repos/nhasim_python/player_data/"
 TEAM_DATA_PATH = "/Users/johnshea/Repos/nhasim_python/team_data/"
@@ -52,9 +52,10 @@ def formatName(name):
 
 	return name.replace(" ","")+".json"
 
-def createRandomPlayer():
+def createRandomPlayer(low, high):
 	firstName = randomname.getFirstName()
 	lastName = randomname.getLastName()
-	return Player(firstName, lastName)
-
+	offense = random.randint(low, high)
+	defense = random.randint(low, high)
+	return Player(firstName, lastName, offense, defense)
 	

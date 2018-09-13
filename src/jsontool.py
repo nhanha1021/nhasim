@@ -5,6 +5,8 @@ from models import League
 
 FIRSTNAME_LABEL = "firstName"
 LASTNAME_LABEL = "lastName"
+OFFENSE_LABEL = "offense"
+DEFENSE_LABEL = "defense"
 TEAMNAME_LABEL = "teamName"
 ROSTER_LABEL = "roster"
 LEAGUENAME_LABEL = "leagueName"
@@ -14,7 +16,9 @@ def PlayerToJson(player):
 	
 	data = {
 		FIRSTNAME_LABEL : player.firstName,
-		LASTNAME_LABEL : player.lastName
+		LASTNAME_LABEL : player.lastName,
+		OFFENSE_LABEL : player.offense,
+		DEFENSE_LABEL : player.defense
 	}
 	return data
 
@@ -22,7 +26,9 @@ def JsonToPlayer(data):
 
 	firstName = data[FIRSTNAME_LABEL]
 	lastName = data[LASTNAME_LABEL]
-	return Player(firstName,lastName)
+	offense = data[OFFENSE_LABEL]
+	defense = data[DEFENSE_LABEL]
+	return Player(firstName,lastName, offense, defense)
 
 def TeamToJson(team):
 
@@ -49,7 +55,7 @@ def LeagueToJson(league):
 		LEAGUENAME_LABEL : league.leagueName
 	}
 	teamRoster = []
-	for team in league.teamRoster:
+	for team in league.teamRoster.values():
 		teamRoster.append(TeamToJson(team))
 	data[TEAMROSTER_LABEL] = teamRoster
 	return data
@@ -57,9 +63,10 @@ def LeagueToJson(league):
 def JsonToLeague(data):
 	leagueName = data[LEAGUENAME_LABEL]
 	jsonroster = data[TEAMROSTER_LABEL]
-	teamRoster = []
+	teamRoster = {}
 	for jsonteam in jsonroster:
-		teamRoster.append(JsonToTeam(jsonteam))
+		team = JsonToTeam(jsonteam)
+		teamRoster[team.teamName] = team
 	return League(leagueName, teamRoster)
 
 
