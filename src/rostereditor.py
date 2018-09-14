@@ -27,17 +27,29 @@ def printTeamNames():
 	for name in league.teamRoster.keys():
 		print name
 
+def help():
+	table = []
+	table.append(["roster X","Display the roster of team X"])
+	table.append(["teams","Display the name of each team in the league"])
+	table.append(["quit","Quit the program"])
+	table.append(["help","Display the list of commands"])
+	print tabulate(table, ["Command", "Description"])
+
 init()
 while(True):
 	cmd = getInput()
-	if(cmd[0] == "view"):
+	if(cmd[0] == "roster"):
 		system("clear")
 		printTeamRoster(cmd[1].replace("_"," "))
 	if(cmd[0] == "teams"):
 		system("clear")
 		printTeamNames()
+	if(cmd[0] == "help"):
+		system("clear")
+		help()
 	if(cmd[0] == "quit"):
 		break
+	print ""
 
 
 
