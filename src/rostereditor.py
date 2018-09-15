@@ -3,53 +3,76 @@ from models import League, Team, Player
 from tabulate import tabulate
 from os import system
 
-league = None
-
 def getInput():
-	inp = raw_input(">")
+	inp = raw_input("\n")
 	inp = inp.rstrip().lstrip()
-	cmd = inp.split(' ')
+	cmd = inp.split('.')
+	for i in range(len(cmd)):
+		cmd[i] = cmd[i].rstrip().lstrip()
 	return cmd
 
 def init():
 	system("clear")
-	global league
 	league = rostertool.loadLeague(sys.argv[1])
+	return MainShell(league)
 
-def printTeamRoster(teamName):
-	team = league.getTeam(teamName)
-	table = []
-	for player in team.roster:
-		table.append([player.fullName(),player.offense,player.defense])
-	print tabulate(table, ["Name","Offense","Defense"])
+class TeamShell(object):
 
-def printTeamNames():
-	for name in league.teamRoster.keys():
-		print name
+	def __init__(self, team):
+		self.team = team
 
-def help():
-	table = []
-	table.append(["roster X","Display the roster of team X"])
-	table.append(["teams","Display the name of each team in the league"])
-	table.append(["quit","Quit the program"])
-	table.append(["help","Display the list of commands"])
-	print tabulate(table, ["Command", "Description"])
+	def run(self):
+		while(True):
+			system("clear")
+			self.printRoster()
+			cmd = getInput()
+			if(cmd[0] == "add"):
+				p = Player(cmd[1], cmd[2], cmd[3], cmd[4])
+				self.team.addPlayer(p)
+			if(cmd[0] == "rm"):
+				self.team.removePlayer(cmd[1])
+			if(cmd[0] == "back"):
+				break
 
-init()
-while(True):
-	cmd = getInput()
-	if(cmd[0] == "roster"):
-		system("clear")
-		printTeamRoster(cmd[1].replace("_"," "))
-	if(cmd[0] == "teams"):
-		system("clear")
-		printTeamNames()
-	if(cmd[0] == "help"):
-		system("clear")
-		help()
-	if(cmd[0] == "quit"):
-		break
-	print ""
+	def printRoster(self):
+		table = []
+		for player in self.team.roster:
+			table.append([player.fullName(), player.offense, player.defense])
+		print tabulate(table,["Name","Offense","Defense"])
+
+class MainShell(object):
+
+	def __init__(self, league):
+		self.league = league
+
+	def run(self):
+		while(True):
+			system("clear")
+			self.printTeams()
+			cmd = getInput()
+			if(cmd[0] == "add"):
+				self.add(cmd[1])
+			if(cmd[0] == "rm"):
+				self.rm(cmd[1])
+			if(cmd[0] == "view"):
+				ts = TeamShell(self.league.getTeam(cmd[1]))
+				ts.run()
+			if(cmd[0] == "quit"):
+				break
+
+	def printTeams(self):
+		for name in self.league.teamRoster.keys():
+			print name
+
+	def add(self,teamName):
+		self.league.addTeam(Team(teamName, []))
+
+	def rm(self,teamName):
+		self.league.removeTeam(teamName)
+
+main = init()
+main.run()
+
 
 
 
