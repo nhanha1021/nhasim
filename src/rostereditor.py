@@ -16,30 +16,6 @@ def init():
 	league = rostertool.loadLeague(sys.argv[1])
 	return MainShell(league)
 
-class TeamShell(object):
-
-	def __init__(self, team):
-		self.team = team
-
-	def run(self):
-		while(True):
-			system("clear")
-			self.printRoster()
-			cmd = getInput()
-			if(cmd[0] == "add"):
-				p = Player(cmd[1], cmd[2], cmd[3], cmd[4])
-				self.team.addPlayer(p)
-			if(cmd[0] == "rm"):
-				self.team.removePlayer(cmd[1])
-			if(cmd[0] == "back"):
-				break
-
-	def printRoster(self):
-		table = []
-		for player in self.team.roster:
-			table.append([player.fullName(), player.offense, player.defense])
-		print tabulate(table,["Name","Offense","Defense"])
-
 class MainShell(object):
 
 	def __init__(self, league):
@@ -69,6 +45,52 @@ class MainShell(object):
 
 	def rm(self,teamName):
 		self.league.removeTeam(teamName)
+
+class TeamShell(object):
+
+	def __init__(self, team):
+		self.team = team
+
+	def run(self):
+		while(True):
+			system("clear")
+			self.printRoster()
+			cmd = getInput()
+			if(cmd[0] == "view"):
+				ps = PlayerShell(self.team.getPlayer(cmd[1]))
+				ps.run()
+			if(cmd[0] == "add"):
+				p = Player(cmd[1], cmd[2], cmd[3], cmd[4])
+				self.team.addPlayer(p)
+			if(cmd[0] == "rm"):
+				self.team.removePlayer(cmd[1])
+			if(cmd[0] == "back"):
+				break
+
+	def printRoster(self):
+		table = []
+		for player in self.team.roster:
+			table.append([player.fullName(), player.offense, player.defense])
+		print tabulate(table,["Name","Offense","Defense"])
+
+class PlayerShell(object):
+
+	def __init__(self, player):
+		self.player = player
+
+	def run(self):
+		while(True):
+			system("clear")
+			self.printPlayer()
+			cmd = getInput()
+			if(cmd[0] == "back"):
+				break
+
+
+	def printPlayer(self):
+		print(("Name: %s") % (self.player.fullName()))
+		print(("Offense: %d") % (self.player.offense))
+		print(("Defense: %d") % (self.player.defense))
 
 main = init()
 main.run()
