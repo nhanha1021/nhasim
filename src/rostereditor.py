@@ -83,14 +83,21 @@ class PlayerShell(object):
 			system("clear")
 			self.printPlayer()
 			cmd = getInput()
+			if(cmd[0] == "set"):
+				self.setPlayerSkill(cmd[1], cmd[2])
 			if(cmd[0] == "back"):
 				break
-
 
 	def printPlayer(self):
 		print(("Name: %s") % (self.player.fullName()))
 		print(("Offense: %d") % (self.player.offense))
 		print(("Defense: %d") % (self.player.defense))
+
+	def setPlayerSkill(self, skill, value):
+		if(skill == "offense"):
+			self.player.offense = int(value)
+		if(skill == "defense"):
+			self.player.defense = int(value)
 
 main = init()
 main.run()
