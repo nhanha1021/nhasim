@@ -6,9 +6,10 @@ from os import system
 def getInput():
 	inp = raw_input("\n")
 	inp = inp.rstrip().lstrip()
-	cmd = inp.split('.')
+	cmd = inp.split(' ')
 	for i in range(len(cmd)):
 		cmd[i] = cmd[i].rstrip().lstrip()
+		cmd[i] = cmd[i].replace("_", " ")
 	return cmd
 
 def init():
@@ -20,11 +21,17 @@ class MainShell(object):
 
 	def __init__(self, league):
 		self.league = league
+		self.doRefresh = True
+
+	def refresh(self):
+		if(self.doRefresh):
+			system("clear")
+			self.printTeams()
+		self.doRefresh = True
 
 	def run(self):
 		while(True):
-			system("clear")
-			self.printTeams()
+			self.refresh()
 			cmd = getInput()
 			if(cmd[0] == "add"):
 				self.add(cmd[1])
@@ -33,6 +40,9 @@ class MainShell(object):
 			if(cmd[0] == "view"):
 				ts = TeamShell(self.league.getTeam(cmd[1]))
 				ts.run()
+			if(cmd[0] == "help"):
+				self.help()
+				self.doRefresh = False
 			if(cmd[0] == "quit"):
 				break
 
@@ -46,15 +56,28 @@ class MainShell(object):
 	def rm(self,teamName):
 		self.league.removeTeam(teamName)
 
+	def help(self):
+		print("")
+		print("add X - Add a team named X to the league")
+		print("rm X - Remove team X from the league")
+		print("view X - View the details of team X")
+		print("quit - End the program")
+
 class TeamShell(object):
 
 	def __init__(self, team):
 		self.team = team
+		self.doRefresh = True
+
+	def refresh(self):
+		if(self.doRefresh):
+			system("clear")
+			self.printRoster()
+		self.doRefresh = True
 
 	def run(self):
 		while(True):
-			system("clear")
-			self.printRoster()
+			self.refresh()
 			cmd = getInput()
 			if(cmd[0] == "view"):
 				ps = PlayerShell(self.team.getPlayer(cmd[1]))
@@ -64,8 +87,18 @@ class TeamShell(object):
 				self.team.addPlayer(p)
 			if(cmd[0] == "rm"):
 				self.team.removePlayer(cmd[1])
+			if(cmd[0] == "help"):
+				self.help()
+				self.doRefresh = False
 			if(cmd[0] == "back"):
 				break
+
+	def help(self):
+		print("")
+		print("add X Y A B - Add player with first name X, last name Y, offense A, and defense B to the team")
+		print("rm X - Remove player X from the team")
+		print("view X - View the details of player X")
+		print("back - Return to the league screen")
 
 	def printRoster(self):
 		table = []
