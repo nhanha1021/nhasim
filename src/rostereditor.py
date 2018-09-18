@@ -83,9 +83,7 @@ class TeamShell(object):
 				ps = PlayerShell(self.team.getPlayer(cmd[1]))
 				ps.run()
 			if(cmd[0] == "add"):
-				details = cmd[1].split(",")
-				p = Player(details[0], details[1], details[2], details[3])
-				self.team.addPlayer(p)
+				self.add()
 			if(cmd[0] == "rm"):
 				self.team.removePlayer(cmd[1])
 			if(cmd[0] == "help"):
@@ -94,9 +92,16 @@ class TeamShell(object):
 			if(cmd[0] == "back"):
 				break
 
+	def add(self):
+		first = raw_input("First Name: ")
+		last = raw_input("Last Name: ")
+		off = raw_input("Offense: ")
+		defs = raw_input("Defense: ")
+		self.team.addPlayer(Player(first,last,off,defs))
+
 	def help(self):
 		print("")
-		print("add X,Y,A,B - Add player with first name X, last name Y, offense A, and defense B to the team")
+		print("add - Add player to team")
 		print("rm X - Remove player X from the team")
 		print("view X - View the details of player X")
 		print("back - Return to the league screen")
