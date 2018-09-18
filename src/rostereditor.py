@@ -83,7 +83,8 @@ class TeamShell(object):
 				ps = PlayerShell(self.team.getPlayer(cmd[1]))
 				ps.run()
 			if(cmd[0] == "add"):
-				p = Player(cmd[1], cmd[2], cmd[3], cmd[4])
+				details = cmd[1].split(",")
+				p = Player(details[0], details[1], details[2], details[3])
 				self.team.addPlayer(p)
 			if(cmd[0] == "rm"):
 				self.team.removePlayer(cmd[1])
@@ -95,7 +96,7 @@ class TeamShell(object):
 
 	def help(self):
 		print("")
-		print("add X Y A B - Add player with first name X, last name Y, offense A, and defense B to the team")
+		print("add X,Y,A,B - Add player with first name X, last name Y, offense A, and defense B to the team")
 		print("rm X - Remove player X from the team")
 		print("view X - View the details of player X")
 		print("back - Return to the league screen")
@@ -110,16 +111,30 @@ class PlayerShell(object):
 
 	def __init__(self, player):
 		self.player = player
+		self.doRefresh = True
+
+	def refresh(self):
+		if(self.doRefresh):
+			system("clear")
+			self.printPlayer()
+		self.doRefresh = True
 
 	def run(self):
 		while(True):
-			system("clear")
-			self.printPlayer()
+			self.refresh()
 			cmd = getInput()
 			if(cmd[0] == "set"):
 				self.setPlayerSkill(cmd[1], cmd[2])
+			if(cmd[0] == "help"):
+				self.help()
+				self.doRefresh = False
 			if(cmd[0] == "back"):
 				break
+
+	def help(self):
+		print("")
+		print("set off/def X - Set the offense/defense of the current player to X")
+		print("back - Return to the previous screen")
 
 	def printPlayer(self):
 		print(("Name: %s") % (self.player.fullName()))
@@ -127,9 +142,9 @@ class PlayerShell(object):
 		print(("Defense: %d") % (self.player.defense))
 
 	def setPlayerSkill(self, skill, value):
-		if(skill == "offense"):
+		if(skill == "off"):
 			self.player.offense = int(value)
-		if(skill == "defense"):
+		if(skill == "def"):
 			self.player.defense = int(value)
 
 main = init()
