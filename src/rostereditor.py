@@ -84,6 +84,8 @@ class TeamShell(object):
 				ps.run()
 			if(cmd[0] == "add"):
 				self.add()
+			if(cmd[0] == "addrand"):
+				self.addrand()
 			if(cmd[0] == "rm"):
 				self.team.removePlayer(cmd[1])
 			if(cmd[0] == "help"):
@@ -99,9 +101,13 @@ class TeamShell(object):
 		defs = raw_input("Defense: ")
 		self.team.addPlayer(Player(first,last,off,defs))
 
+	def addrand(self):
+		self.team.addPlayer(rostertool.createRandomPlayer(50,99))
+
 	def help(self):
 		print("")
 		print("add - Add player to team")
+		print("addrand - Add a random player to the team")
 		print("rm X - Remove player X from the team")
 		print("view X - View the details of player X")
 		print("back - Return to the league screen")

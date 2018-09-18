@@ -49,7 +49,6 @@ def loadLeague(leagueName):
 		return jsontool.JsonToLeague(data)
 
 def formatName(name):
-
 	return name.replace(" ","")+".json"
 
 def createRandomPlayer(low, high):
