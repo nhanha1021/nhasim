@@ -3,8 +3,8 @@ class Player(object):
 	def __init__(self, firstName, lastName, offense, defense):
 		self.firstName = firstName
 		self.lastName = lastName
-		self.offense = offense
-		self.defense = defense
+		self.offense = int(offense)
+		self.defense = int(defense)
 
 	def fullName(self):
 		return ("%s %s") % (self.firstName, self.lastName)
