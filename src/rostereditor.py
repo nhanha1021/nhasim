@@ -33,6 +33,15 @@ class MainShell(object):
 			self.printTeams()
 		self.doRefresh = True
 
+	def help(self):
+		table = []
+		table.append(["add X", "Add a team named X to the league"])
+		table.append(["rm X", "Remove team X from the league"])
+		table.append(["view X", "View the details of team X"])
+		table.append(["set name X", "Set the name of the leauge to X"])
+		table.append(["quit","End the program"])
+		print tabulate(table)
+
 	def run(self):
 		while(True):
 			self.refresh()
@@ -68,14 +77,6 @@ class MainShell(object):
 		if(item == "name"):
 			self.league.leagueName = value
 
-	def help(self):
-		print("")
-		print("add X - Add a team named X to the league")
-		print("rm X - Remove team X from the league")
-		print("view X - View the details of team X")
-		print("set name X - Set the name of the league to X")
-		print("quit - End the program")
-
 class TeamShell(object):
 
 	def __init__(self, team):
@@ -87,6 +88,15 @@ class TeamShell(object):
 			system("clear")
 			self.printRoster()
 		self.doRefresh = True
+
+	def help(self):
+		table = []
+		table.append(["add", "Add player to the team"])
+		table.append(["addrand", "Add a random player to the team"])
+		table.append(["rm X", "Remove player X from the team"])
+		table.append(["view X","View the details of player X"])
+		table.append(["back","Return to the league screen"])
+		print tabulate(table)
 
 	def run(self):
 		while(True):
@@ -107,6 +117,12 @@ class TeamShell(object):
 			if(cmd[0] == "back"):
 				break
 
+	def printRoster(self):
+		table = []
+		for player in self.team.roster:
+			table.append([player.fullName(), player.offense, player.defense])
+		print tabulate(table,["Name","Offense","Defense"])
+
 	def add(self):
 		first = raw_input("First Name: ")
 		last = raw_input("Last Name: ")
@@ -116,20 +132,6 @@ class TeamShell(object):
 
 	def addrand(self):
 		self.team.addPlayer(rostertool.createRandomPlayer(50,99))
-
-	def help(self):
-		print("")
-		print("add - Add player to team")
-		print("addrand - Add a random player to the team")
-		print("rm X - Remove player X from the team")
-		print("view X - View the details of player X")
-		print("back - Return to the league screen")
-
-	def printRoster(self):
-		table = []
-		for player in self.team.roster:
-			table.append([player.fullName(), player.offense, player.defense])
-		print tabulate(table,["Name","Offense","Defense"])
 
 class PlayerShell(object):
 
@@ -143,6 +145,14 @@ class PlayerShell(object):
 			self.printPlayer()
 		self.doRefresh = True
 
+	def help(self):
+		table = []
+		table.append(["set off X","Set the offense of the current player to X"])
+		table.append(["set def X", "Set the defense of the current player to X"])
+		table.append(["set name X","Set the name of the current player to X"])
+		table.append(["back","Return to the previous screen"])
+		print tabulate(table)
+
 	def run(self):
 		while(True):
 			self.refresh()
@@ -154,13 +164,6 @@ class PlayerShell(object):
 				self.doRefresh = False
 			if(cmd[0] == "back"):
 				break
-
-	def help(self):
-		print("")
-		print("set off X - Set the offense of the current player to X")
-		print("set def X - Set the defense of the current player to X")
-		print("set name X - set the name of the current player to X")
-		print("back - Return to the previous screen")
 
 	def printPlayer(self):
 		print(("Name: %s") % (self.player.fullName()))
