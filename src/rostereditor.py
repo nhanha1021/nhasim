@@ -14,7 +14,10 @@ def getInput():
 
 def init():
 	system("clear")
-	league = rostertool.loadLeague(sys.argv[1])
+	if(len(sys.argv) == 1):
+		league = League("", {})
+	else:
+		league = rostertool.loadLeague(sys.argv[1])
 	return MainShell(league)
 
 class MainShell(object):
@@ -26,6 +29,7 @@ class MainShell(object):
 	def refresh(self):
 		if(self.doRefresh):
 			system("clear")
+			print("League: %s\n" % self.league.leagueName)
 			self.printTeams()
 		self.doRefresh = True
 
@@ -47,8 +51,10 @@ class MainShell(object):
 				break
 
 	def printTeams(self):
+		table = []
 		for name in self.league.teamRoster.keys():
-			print name
+			table.append([name])
+		print tabulate(table,["Teams"])
 
 	def add(self,teamName):
 		self.league.addTeam(Team(teamName, []))
