@@ -31,15 +31,22 @@ class Team(object):
 
 class League(object):
 
-	def __init__(self, leagueName, teamRoster):
+	def __init__(self, leagueName):
 		self.leagueName = leagueName
-		self.teamRoster = teamRoster
+		self.teamRoster = {}
 
 	def getTeam(self,teamName):
-		return self.teamRoster[teamName]
+		return self.teamRoster[self.toKey(teamName)]
 
 	def addTeam(self, team):
-		self.teamRoster[team.teamName] = team
+		self.teamRoster[self.toKey(team.teamName)] = team
 
 	def removeTeam(self, teamName):
-		del self.teamRoster[teamName]
+		del self.teamRoster[self.toKey(teamName)]
+
+	def allTeams(self):
+		return self.teamRoster.values()
+
+	def toKey(self,teamName):
+		key = teamName.lower().replace(" ","")
+		return key

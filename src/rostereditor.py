@@ -15,7 +15,7 @@ def getInput():
 def init():
 	system("clear")
 	if(len(sys.argv) == 1):
-		league = League("", {})
+		league = League("")
 	else:
 		league = rostertool.loadLeague(sys.argv[1])
 	return MainShell(league)
