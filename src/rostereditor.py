@@ -135,7 +135,7 @@ class PlayerShell(object):
 			self.refresh()
 			cmd = getInput()
 			if(cmd[0] == "set"):
-				self.setPlayerSkill(cmd[1], cmd[2])
+				self.set(cmd[1], cmd[2])
 			if(cmd[0] == "help"):
 				self.help()
 				self.doRefresh = False
@@ -144,7 +144,9 @@ class PlayerShell(object):
 
 	def help(self):
 		print("")
-		print("set off/def X - Set the offense/defense of the current player to X")
+		print("set off X - Set the offense of the current player to X")
+		print("set def X - Set the defense of the current player to X")
+		print("set name X - set the name of the current player to X")
 		print("back - Return to the previous screen")
 
 	def printPlayer(self):
@@ -152,11 +154,15 @@ class PlayerShell(object):
 		print(("Offense: %d") % (self.player.offense))
 		print(("Defense: %d") % (self.player.defense))
 
-	def setPlayerSkill(self, skill, value):
-		if(skill == "off"):
+	def set(self, item, value):
+		if(item == "off"):
 			self.player.offense = int(value)
-		if(skill == "def"):
+		if(item == "def"):
 			self.player.defense = int(value)
+		if(item == "name"):
+			value = value.split(" ")
+			self.player.firstName = value[0]
+			self.player.lastName = value[1]
 
 main = init()
 main.run()
