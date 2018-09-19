@@ -44,6 +44,8 @@ class MainShell(object):
 			if(cmd[0] == "view"):
 				ts = TeamShell(self.league.getTeam(cmd[1]))
 				ts.run()
+			if(cmd[0] == "set"):
+				self.set(cmd[1], cmd[2])
 			if(cmd[0] == "help"):
 				self.help()
 				self.doRefresh = False
@@ -62,11 +64,16 @@ class MainShell(object):
 	def rm(self,teamName):
 		self.league.removeTeam(teamName)
 
+	def set(self,item,value):
+		if(item == "name"):
+			self.league.leagueName = value
+
 	def help(self):
 		print("")
 		print("add X - Add a team named X to the league")
 		print("rm X - Remove team X from the league")
 		print("view X - View the details of team X")
+		print("set name X - Set the name of the league to X")
 		print("quit - End the program")
 
 class TeamShell(object):
