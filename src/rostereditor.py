@@ -6,7 +6,7 @@ from os import system
 def getInput():
 	inp = raw_input("\n")
 	inp = inp.rstrip().lstrip()
-	cmd = inp.split(' ')
+	cmd = inp.split()
 	for i in range(len(cmd)):
 		cmd[i] = cmd[i].rstrip().lstrip()
 		cmd[i] = cmd[i].replace("_", " ")
@@ -51,8 +51,7 @@ class MainShell(object):
 			if(cmd[0] == "rm"):
 				self.rm(cmd[1])
 			if(cmd[0] == "view"):
-				ts = TeamShell(self.league.getTeam(cmd[1]))
-				ts.run()
+				self.view(cmd[1])
 			if(cmd[0] == "set"):
 				self.set(cmd[1], cmd[2])
 			if(cmd[0] == "save"):
@@ -65,9 +64,14 @@ class MainShell(object):
 
 	def printTeams(self):
 		table = []
-		for name in self.league.teamRoster.keys():
-			table.append([name])
+		for team in self.league.allTeams():
+			table.append([team.teamName])
 		print tabulate(table,["Teams"])
+
+	def view(self,teamName):
+		team = self.league.getTeam(teamName)
+		ts = TeamShell(team)
+		ts.run()
 
 	def add(self,teamName):
 		self.league.addTeam(Team(teamName, []))
