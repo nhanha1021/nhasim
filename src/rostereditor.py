@@ -55,6 +55,8 @@ class MainShell(object):
 				ts.run()
 			if(cmd[0] == "set"):
 				self.set(cmd[1], cmd[2])
+			if(cmd[0] == "save"):
+				self.save()
 			if(cmd[0] == "help"):
 				self.help()
 				self.doRefresh = False
@@ -76,6 +78,9 @@ class MainShell(object):
 	def set(self,item,value):
 		if(item == "name"):
 			self.league.leagueName = value
+
+	def save(self):
+		rostertool.writeLeague(self.league)
 
 class TeamShell(object):
 
