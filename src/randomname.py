@@ -2,9 +2,8 @@ import random
 from math import *
 
 def getFirstName():
-
 	firstNames = []
-	with open("../res/malenames.txt",'r') as f:
+	with open("/Users/johnshea/Repos/nhasim_python/res/malenames.txt",'r') as f:
 		firstNames = list(f)
 		firstNames = [x.strip() for x in firstNames]
 	x = random.random()*100
@@ -16,9 +15,8 @@ def getFirstName():
 	return firstNames[f]
 
 def getLastName():
-
 	lastNames = []
-	with open("../res/lastnames.txt",'r') as f:
+	with open("/Users/johnshea/Repos/nhasim_python/res/lastnames.txt",'r') as f:
 		lastNames = list(f)
 		lastNames = [x.strip() for x in lastNames]
 	x = random.random()*100
@@ -30,7 +28,6 @@ def getLastName():
 	return lastNames[f]
 
 def getFullName():
-
 	name = getFirstName()+" "+getLastName()
 	return name
 

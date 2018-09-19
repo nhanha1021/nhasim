@@ -3,6 +3,5 @@ from tabulate import tabulate
 from os import system
 import json, rostertool, sys
 
-print len(sys.argv)
-
+print rostertool.createRandomPlayer(70, 99).fullName()
 
