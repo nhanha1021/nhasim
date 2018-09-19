@@ -3,15 +3,40 @@ from tabulate import tabulate
 from os import system
 import json, rostertool, sys
 
-l1 = League("LEAGUE1")
-l2 = League("LEAGUE2")
-l1.addTeam(Team("Team1", []))
-l1.addTeam(Team("Team2", []))
-l2.addTeam(Team("Team3", []))
-l1.addTeam(Team("Team4", []))
-print("l1 teams")
-for team in l1.allTeams():
-	print team.teamName
-print("l2 teams")
-for team in l2.allTeams():
-	print team.teamName
+league = rostertool.loadLeague("USFL")
+team = league.getTeam("Boston")
+for key in team.roster.keys():
+	print key
+
+print ""
+for player in team.allPlayers():
+	print player.fullName()
+print ""
+
+p1 = team.getPlayer("Charles Patton")
+p2 = team.getPlayer("CharlesPatton")
+p3 = team.getPlayer("charles patton")
+p4 = team.getPlayer("charlespatton")
+p5 = team.getPlayer("ChaRleSpaTToN")
+
+print p1.fullName()
+print p2.fullName()
+print p3.fullName()
+print p4.fullName()
+print p5.fullName()
+
+# def overallOff(team):
+# 	s = sum(player.offense for player in team.roster)
+# 	print int(s/len(team.roster))
+
+# def overallDef(team):
+# 	s = sum(player.defense for player in team.roster)
+# 	print int(s/len(team.roster))
+
+# league = rostertool.loadLeague("USFL")
+
+# for team in league.allTeams():
+# 	print team.teamName
+# 	overallOff(team)
+# 	overallDef(team)
+# 	print ""

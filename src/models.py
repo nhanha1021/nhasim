@@ -11,23 +11,25 @@ class Player(object):
 
 class Team(object):
 
-	def __init__(self, teamName, roster):
+	def __init__(self, teamName):
 		self.teamName = teamName
-		self.roster = roster
+		self.roster = {}
 
 	def getPlayer(self, playerName):
-		for player in self.roster:
-			if(player.fullName() == playerName):
-				return player
+		return self.roster[self.toKey(playerName)]
 
 	def addPlayer(self, player):
-		self.roster.append(player)
+		self.roster[self.toKey(player.fullName())] = player
 
 	def removePlayer(self, playerName):
-		for i in range(len(self.roster)):
-			if(self.roster[i].fullName() == playerName):
-				del self.roster[i]
-				break
+		del self.roster[self.toKey(playerName)]
+
+	def allPlayers(self):
+		return self.roster.values()
+
+	def toKey(self, playerName):
+		key = playerName.lower().replace(" ","")
+		return key
 
 class League(object):
 
