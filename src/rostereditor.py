@@ -74,7 +74,7 @@ class MainShell(object):
 		ts.run()
 
 	def add(self,teamName):
-		self.league.addTeam(Team(teamName, []))
+		self.league.addTeam(Team(teamName))
 
 	def rm(self,teamName):
 		self.league.removeTeam(teamName)
@@ -112,8 +112,7 @@ class TeamShell(object):
 			self.refresh()
 			cmd = getInput()
 			if(cmd[0] == "view"):
-				ps = PlayerShell(self.team.getPlayer(cmd[1]))
-				ps.run()
+				self.view(cmd[1])
 			if(cmd[0] == "add"):
 				self.add()
 			if(cmd[0] == "addrand"):
@@ -128,9 +127,14 @@ class TeamShell(object):
 
 	def printRoster(self):
 		table = []
-		for player in self.team.roster:
+		for player in self.team.allPlayers():
 			table.append([player.fullName(), player.offense, player.defense])
 		print tabulate(table,["Name","Offense","Defense"])
+
+	def view(self, playerName):
+		player = self.team.getPlayer(playerName)
+		ps = PlayerShell(player)
+		ps.run()
 
 	def add(self):
 		first = raw_input("First Name: ")
