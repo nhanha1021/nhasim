@@ -204,7 +204,6 @@ class PlayerShell(object):
 		table = []
 		table.append(["set off X","Set the offense of the current player to X"])
 		table.append(["set def X", "Set the defense of the current player to X"])
-		table.append(["set name X","Set the name of the current player to X"])
 		table.append(["back","Return to the previous screen"])
 		print tabulate(table)
 
@@ -237,10 +236,6 @@ class PlayerShell(object):
 			self.player.offense = int(value)
 		if(item == "def"):
 			self.player.defense = int(value)
-		if(item == "name"):
-			value = value.split(" ")
-			self.player.firstName = value[0]
-			self.player.lastName = value[1]
 
 class TradeShell(object):
 	def __init__(self, team1, team2):
