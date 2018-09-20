@@ -39,6 +39,7 @@ class MainShell(object):
 		table.append(["rm X", "Remove team X from the league"])
 		table.append(["view X", "View the details of team X"])
 		table.append(["set name X", "Set the name of the leauge to X"])
+		table.append(["mktrade X Y", "Make a trade between Team X and Team Y"])
 		table.append(["quit","End the program"])
 		print tabulate(table)
 
@@ -56,6 +57,8 @@ class MainShell(object):
 				self.set(cmd[1], cmd[2])
 			if(cmd[0] == "save"):
 				self.save()
+			if(cmd[0] == "mktrade"):
+				self.mktrade(cmd[1], cmd[2])
 			if(cmd[0] == "help"):
 				self.help()
 				self.doRefresh = False
@@ -85,6 +88,12 @@ class MainShell(object):
 
 	def save(self):
 		rostertool.writeLeague(self.league)
+
+	def mktrade(self, team1Name, team2Name):
+		team1 = self.league.getTeam(team1Name)
+		team2 = self.league.getTeam(team2Name)
+		ts = TradeShell(team1, team2)
+		ts.run()
 
 class TeamShell(object):
 
@@ -129,6 +138,7 @@ class TeamShell(object):
 		table = []
 		for player in self.team.allPlayers():
 			table.append([player.fullName(), player.offense, player.defense])
+		print self.team.teamName	
 		print tabulate(table,["Name","Offense","Defense"])
 
 	def view(self, playerName):
@@ -192,6 +202,59 @@ class PlayerShell(object):
 			value = value.split(" ")
 			self.player.firstName = value[0]
 			self.player.lastName = value[1]
+
+class TradeShell(object):
+	def __init__(self, team1, team2):
+		self.team1 = team1
+		self.team2 = team2
+		self.doRefresh = True
+
+	def refresh(self):
+		if(self.doRefresh):
+			system("clear")
+			self.printRosters()
+		self.doRefresh = True
+
+	def help(self):
+		table = []
+		table.append(["trade X Y","Trade Player X from Team 1 to Team 2 \nand Player Y from Team 2 to Team 1 \nType '*' in place of a blank player"])
+		table.append(["back","Return to the previous screen"])
+		print tabulate(table)
+
+	def run(self):
+		while(True):
+			self.refresh()
+			cmd = getInput()
+			if(cmd[0] == "trade"):
+				self.trade(cmd[1],cmd[2])
+			if(cmd[0] == "help"):
+				self.help()
+				self.doRefresh = False	
+			if(cmd[0] == "back"):
+				break
+
+	def printRosters(self):
+		table1 = []
+		for player in self.team1.allPlayers():
+			table1.append([player.fullName(),player.offense,player.defense])
+		table2 = []
+		for player in self.team2.allPlayers():
+			table2.append([player.fullName(),player.offense,player.defense])
+		print self.team1.teamName
+		print tabulate(table1,["Name","Offense","Defense"])
+		print ""
+		print self.team2.teamName
+		print tabulate(table2,["Name","Offense","Defense"])
+
+	def trade(self,player1Name, player2Name):
+		if((player1Name == "*") != True):
+			player1 = self.team1.getPlayer(player1Name)
+			self.team1.removePlayer(player1Name)
+			self.team2.addPlayer(player1)
+		if((player2Name == "*") != True):
+			player2 = self.team2.getPlayer(player2Name)
+			self.team2.removePlayer(player2Name)
+			self.team1.addPlayer(player2)
 
 main = init()
 main.run()
