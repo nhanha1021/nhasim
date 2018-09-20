@@ -7,6 +7,8 @@ def getInput():
 	inp = raw_input("\n")
 	inp = inp.rstrip().lstrip()
 	cmd = inp.split()
+	if(len(cmd) == 0):
+		return [" "]
 	for i in range(len(cmd)):
 		cmd[i] = cmd[i].rstrip().lstrip()
 		cmd[i] = cmd[i].replace("_", " ")
@@ -72,15 +74,23 @@ class MainShell(object):
 		print tabulate(table,["Teams"])
 
 	def view(self,teamName):
-		team = self.league.getTeam(teamName)
-		ts = TeamShell(team)
-		ts.run()
+		try:
+			team = self.league.getTeam(teamName)
+			ts = TeamShell(team)
+			ts.run()
+		except KeyError:
+			print("Error parsing team name")
+			self.doRefresh = False
 
 	def add(self,teamName):
 		self.league.addTeam(Team(teamName))
 
 	def rm(self,teamName):
-		self.league.removeTeam(teamName)
+		try:
+			self.league.removeTeam(teamName)
+		except KeyError:
+			print("Error parsing team name")
+			self.doRefresh = False
 
 	def set(self,item,value):
 		if(item == "name"):
@@ -90,10 +100,14 @@ class MainShell(object):
 		rostertool.writeLeague(self.league)
 
 	def mktrade(self, team1Name, team2Name):
-		team1 = self.league.getTeam(team1Name)
-		team2 = self.league.getTeam(team2Name)
-		ts = TradeShell(team1, team2)
-		ts.run()
+		try:
+			team1 = self.league.getTeam(team1Name)
+			team2 = self.league.getTeam(team2Name)
+			ts = TradeShell(team1, team2)
+			ts.run()
+		except KeyError:
+			print("Error parsing team names")
+			self.doRefresh = False
 
 class TeamShell(object):
 
@@ -142,9 +156,13 @@ class TeamShell(object):
 		print tabulate(table,["Name","Offense","Defense"])
 
 	def view(self, playerName):
-		player = self.team.getPlayer(playerName)
-		ps = PlayerShell(player)
-		ps.run()
+		try:
+			player = self.team.getPlayer(playerName)
+			ps = PlayerShell(player)
+			ps.run()
+		except KeyError:
+			print("Error parsing player name")
+			self.doRefresh = False
 
 	def add(self):
 		first = raw_input("First Name: ")
@@ -247,18 +265,28 @@ class TradeShell(object):
 		print tabulate(table2,["Name","Offense","Defense"])
 
 	def trade(self,team1Names, team2Names):
-		if((team1Names == "*") != True):
-			names1 = team1Names.split(",")
-			for name in names1:
-				player1 = self.team1.getPlayer(name)
-				self.team1.removePlayer(name)
-				self.team2.addPlayer(player1)
-		if((team2Names == "*") != True):
-			names2 = team2Names.split(",")
-			for name in names2:
-				player2 = self.team2.getPlayer(name)
-				self.team2.removePlayer(name)
-				self.team1.addPlayer(player2)
+		try:
+			players1 = []
+			players2 = []
+			if((team1Names == "*") != True):
+				names1 = team1Names.split(",")
+				for name in names1:
+					players1.append(self.team1.getPlayer(name))
+			if((team2Names == "*") != True):
+				names2 = team2Names.split(",")
+				for name in names2:
+					players2.append(self.team2.getPlayer(name))
+		except KeyError:
+			print("Error parsing player names")
+			self.doRefresh = False
+			return
+
+		for player in players1:
+			self.team1.removePlayer(player.fullName())
+			self.team2.addPlayer(player)
+		for player in players2:
+			self.team2.removePlayer(player.fullName())
+			self.team1.addPlayer(player)
 
 main = init()
 main.run()
