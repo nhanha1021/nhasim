@@ -217,7 +217,7 @@ class TradeShell(object):
 
 	def help(self):
 		table = []
-		table.append(["trade X Y","Trade Player X from Team 1 to Team 2 \nand Player Y from Team 2 to Team 1 \nType '*' in place of a blank player"])
+		table.append(["trade X Y","Trade Player X from Team 1 to Team 2 \nand Player Y from Team 2 to Team 1 \nType '*' in place of a blank player \nType ',' to separate multiple players"])
 		table.append(["back","Return to the previous screen"])
 		print tabulate(table)
 
@@ -246,15 +246,19 @@ class TradeShell(object):
 		print self.team2.teamName
 		print tabulate(table2,["Name","Offense","Defense"])
 
-	def trade(self,player1Name, player2Name):
-		if((player1Name == "*") != True):
-			player1 = self.team1.getPlayer(player1Name)
-			self.team1.removePlayer(player1Name)
-			self.team2.addPlayer(player1)
-		if((player2Name == "*") != True):
-			player2 = self.team2.getPlayer(player2Name)
-			self.team2.removePlayer(player2Name)
-			self.team1.addPlayer(player2)
+	def trade(self,team1Names, team2Names):
+		if((team1Names == "*") != True):
+			names1 = team1Names.split(",")
+			for name in names1:
+				player1 = self.team1.getPlayer(name)
+				self.team1.removePlayer(name)
+				self.team2.addPlayer(player1)
+		if((team2Names == "*") != True):
+			names2 = team2Names.split(",")
+			for name in names2:
+				player2 = self.team2.getPlayer(name)
+				self.team2.removePlayer(name)
+				self.team1.addPlayer(player2)
 
 main = init()
 main.run()
