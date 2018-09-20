@@ -6,7 +6,7 @@ from os import system
 def getInput():
 	inp = raw_input("\n")
 	inp = inp.rstrip().lstrip()
-	cmd = inp.split(' ')
+	cmd = inp.split()
 	for i in range(len(cmd)):
 		cmd[i] = cmd[i].rstrip().lstrip()
 		cmd[i] = cmd[i].replace("_", " ")
@@ -15,7 +15,7 @@ def getInput():
 def init():
 	system("clear")
 	if(len(sys.argv) == 1):
-		league = League("", {})
+		league = League("")
 	else:
 		league = rostertool.loadLeague(sys.argv[1])
 	return MainShell(league)
@@ -51,8 +51,7 @@ class MainShell(object):
 			if(cmd[0] == "rm"):
 				self.rm(cmd[1])
 			if(cmd[0] == "view"):
-				ts = TeamShell(self.league.getTeam(cmd[1]))
-				ts.run()
+				self.view(cmd[1])
 			if(cmd[0] == "set"):
 				self.set(cmd[1], cmd[2])
 			if(cmd[0] == "save"):
@@ -65,12 +64,17 @@ class MainShell(object):
 
 	def printTeams(self):
 		table = []
-		for name in self.league.teamRoster.keys():
-			table.append([name])
+		for team in self.league.allTeams():
+			table.append([team.teamName])
 		print tabulate(table,["Teams"])
 
+	def view(self,teamName):
+		team = self.league.getTeam(teamName)
+		ts = TeamShell(team)
+		ts.run()
+
 	def add(self,teamName):
-		self.league.addTeam(Team(teamName, []))
+		self.league.addTeam(Team(teamName))
 
 	def rm(self,teamName):
 		self.league.removeTeam(teamName)
@@ -108,8 +112,7 @@ class TeamShell(object):
 			self.refresh()
 			cmd = getInput()
 			if(cmd[0] == "view"):
-				ps = PlayerShell(self.team.getPlayer(cmd[1]))
-				ps.run()
+				self.view(cmd[1])
 			if(cmd[0] == "add"):
 				self.add()
 			if(cmd[0] == "addrand"):
@@ -124,9 +127,14 @@ class TeamShell(object):
 
 	def printRoster(self):
 		table = []
-		for player in self.team.roster:
+		for player in self.team.allPlayers():
 			table.append([player.fullName(), player.offense, player.defense])
 		print tabulate(table,["Name","Offense","Defense"])
+
+	def view(self, playerName):
+		player = self.team.getPlayer(playerName)
+		ps = PlayerShell(player)
+		ps.run()
 
 	def add(self):
 		first = raw_input("First Name: ")
