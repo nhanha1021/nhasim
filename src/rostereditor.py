@@ -49,23 +49,30 @@ class MainShell(object):
 		while(True):
 			self.refresh()
 			cmd = getInput()
-			if(cmd[0] == "add"):
-				self.add(cmd[1])
-			if(cmd[0] == "rm"):
-				self.rm(cmd[1])
-			if(cmd[0] == "view"):
-				self.view(cmd[1])
-			if(cmd[0] == "set"):
-				self.set(cmd[1], cmd[2])
-			if(cmd[0] == "save"):
-				self.save()
-			if(cmd[0] == "mktrade"):
-				self.mktrade(cmd[1], cmd[2])
-			if(cmd[0] == "help"):
-				self.help()
+			try:
+				if(cmd[0] == "add"):
+					self.add(cmd[1])
+				elif(cmd[0] == "rm"):
+					self.rm(cmd[1])
+				elif(cmd[0] == "view"):
+					self.view(cmd[1])
+				elif(cmd[0] == "set"):
+					self.set(cmd[1], cmd[2])
+				elif(cmd[0] == "save"):
+					self.save()
+				elif(cmd[0] == "mktrade"):
+					self.mktrade(cmd[1], cmd[2])
+				elif(cmd[0] == "help"):
+					self.help()
+					self.doRefresh = False
+				elif(cmd[0] == "quit"):
+					break
+				else:
+					print("Invalid command")
+					self.doRefresh = False
+			except IndexError:
+				print("Error parsing command")
 				self.doRefresh = False
-			if(cmd[0] == "quit"):
-				break
 
 	def printTeams(self):
 		table = []
@@ -134,19 +141,26 @@ class TeamShell(object):
 		while(True):
 			self.refresh()
 			cmd = getInput()
-			if(cmd[0] == "view"):
-				self.view(cmd[1])
-			if(cmd[0] == "add"):
-				self.add()
-			if(cmd[0] == "addrand"):
-				self.addrand()
-			if(cmd[0] == "rm"):
-				self.team.removePlayer(cmd[1])
-			if(cmd[0] == "help"):
-				self.help()
+			try:
+				if(cmd[0] == "view"):
+					self.view(cmd[1])
+				elif(cmd[0] == "add"):
+					self.add()
+				elif(cmd[0] == "addrand"):
+					self.addrand()
+				elif(cmd[0] == "rm"):
+					self.team.removePlayer(cmd[1])
+				elif(cmd[0] == "help"):
+					self.help()
+					self.doRefresh = False
+				elif(cmd[0] == "back"):
+					break
+				else:
+					print("Invalid command")
+					self.doRefresh = False
+			except IndexError:
+				print("Error parsing command")
 				self.doRefresh = False
-			if(cmd[0] == "back"):
-				break
 
 	def printRoster(self):
 		table = []
@@ -198,13 +212,20 @@ class PlayerShell(object):
 		while(True):
 			self.refresh()
 			cmd = getInput()
-			if(cmd[0] == "set"):
-				self.set(cmd[1], cmd[2])
-			if(cmd[0] == "help"):
-				self.help()
+			try:
+				if(cmd[0] == "set"):
+					self.set(cmd[1], cmd[2])
+				elif(cmd[0] == "help"):
+					self.help()
+					self.doRefresh = False
+				elif(cmd[0] == "back"):
+					break
+				else:
+					print("Invalid command")
+					self.doRefresh = False
+			except IndexError:
+				print("Error parsing command")
 				self.doRefresh = False
-			if(cmd[0] == "back"):
-				break
 
 	def printPlayer(self):
 		print(("Name: %s") % (self.player.fullName()))
@@ -243,13 +264,20 @@ class TradeShell(object):
 		while(True):
 			self.refresh()
 			cmd = getInput()
-			if(cmd[0] == "trade"):
-				self.trade(cmd[1],cmd[2])
-			if(cmd[0] == "help"):
-				self.help()
-				self.doRefresh = False	
-			if(cmd[0] == "back"):
-				break
+			try:
+				if(cmd[0] == "trade"):
+					self.trade(cmd[1],cmd[2])
+				elif(cmd[0] == "help"):
+					self.help()
+					self.doRefresh = False	
+				elif(cmd[0] == "back"):
+					break
+				else:
+					print("Invalid command")
+					self.doRefresh = False
+			except IndexError:
+				print("Error parsing command")
+				self.doRefresh = False
 
 	def printRosters(self):
 		table1 = []
