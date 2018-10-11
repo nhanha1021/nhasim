@@ -63,15 +63,16 @@ class MainShell(object):
 	def printTeams(self):
 		table = []
 		for team in self.league.allTeams():
-			table.append([team.teamName])
-		print tabulate(table,["Teams"])
+			table.append([team.teamName, team.avgOff(), team.avgDef()])
+		print tabulate(table,["Teams", "OFF", "DEF"])
 
 	def play(self,atname, htname):
 		try:
 			at = self.league.getTeam(atname)
 			ht = self.league.getTeam(htname)
 			g = Game(at, ht)
-			g.playGame()
+			gr = g.playGame()
+			print gr.finalScore()
 		except KeyError:
 			print("Error parsing team names")
 			self.doRefresh = False
