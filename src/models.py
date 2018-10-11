@@ -27,6 +27,14 @@ class Team(object):
 	def allPlayers(self):
 		return self.roster.values()
 
+	def avgOff(self):
+		s = sum(p.offense for p in self.allPlayers())
+		return s/len(self.allPlayers())
+
+	def avgDef(self):
+		s = sum(p.defense for p in self.allPlayers())
+		return s/len(self.allPlayers())
+
 	def toKey(self, playerName):
 		key = playerName.lower().replace(" ","")
 		return key
