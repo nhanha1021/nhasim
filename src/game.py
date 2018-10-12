@@ -47,10 +47,10 @@ class GameResult(object):
 		self.htevents = htevents
 
 	def winner(self):
-		if(atscore > htscore):
-			return atname
+		if(self.atscore > self.htscore):
+			return self.atname
 		else:
-			return htname
+			return self.htname
 
 class Event(object):
 	def __init__(self, point, playername):

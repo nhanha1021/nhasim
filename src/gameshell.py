@@ -23,8 +23,7 @@ def init():
 		league = rostertool.loadLeague(sys.argv[1])
 	return MainShell(league)
 
-def eventfilter(events):
-	table = []
+def eventfilter(events, table):
 	for event in events:
 		for entry in table:
 			if(entry[0] == event.playername):
@@ -47,6 +46,7 @@ class MainShell(object):
 		table = []
 		table.append(["quit", "Quit the program"])
 		table.append(["play X Y", "Play a game between team X and Y"])
+		table.append(["series X Y N", "Play a series of N games between team X and Y"])
 		print tabulate(table)
 
 	def run(self):
@@ -88,9 +88,9 @@ class MainShell(object):
 		system("clear")
 		print("%s: %d %s: %d\n")%(gr.atname, gr.atscore, gr.htname, gr.htscore)
 		print gr.atname
-		print tabulate(eventfilter(gr.atevents),["Player","Points"])+"\n"
+		print tabulate(eventfilter(gr.atevents, []),["Player","Points"])+"\n"
 		print gr.htname
-		print tabulate(eventfilter(gr.htevents),["Player","Points"])
+		print tabulate(eventfilter(gr.htevents, []),["Player","Points"])
 
 	def series(self, atname, htname, n):
 		try:
@@ -107,6 +107,21 @@ class MainShell(object):
 			gr_table.append(g.playGame())
 		for gr in gr_table:
 			print("%s: %d %s: %d")%(gr.atname, gr.atscore, gr.htname, gr.htscore)
+		aw = 0
+		hw = 0
+		for gr in gr_table:
+			if(gr.winner() == at.teamName):
+				aw += 1
+			else:
+				hw += 1
+		print("\n%s: %d %s: %d")%(at.teamName, aw, ht.teamName, hw)
+		ae = []
+		he = []
+		for gr in gr_table:
+			ae = eventfilter(gr.atevents, ae)
+			he = eventfilter(gr.htevents, he)
+		print "\n"+tabulate(ae,["Player","Points"])
+		print "\n"+tabulate(he,["Player","Points"])
 
 
 main = init()
