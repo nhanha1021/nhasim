@@ -23,42 +23,51 @@ def init():
 		league = rostertool.loadLeague(sys.argv[1])
 	return MainShell(league)
 
+def eventfilter(events):
+	table = []
+	for event in events:
+		for entry in table:
+			if(entry[0] == event.playername):
+				entry[1] += event.point
+				break
+		else:
+			table.append([event.playername, event.point])
+	return table
+
 class MainShell(object):
 	def __init__(self, league):
 		self.league = league
-		self.doRefresh = True
 
 	def refresh(self):
-		if(self.doRefresh):
-			system("clear")
-			print("League: %s\n" % self.league.leagueName)
-			self.printTeams()
-		self.doRefresh = True
+		system("clear")
+		print("League: %s\n" % self.league.leagueName)
+		self.printTeams()
 
 	def help(self):
 		table = []
+		table.append(["quit", "Quit the program"])
 		table.append(["play X Y", "Play a game between team X and Y"])
 		print tabulate(table)
 
 	def run(self):
+		self.refresh()
 		while(True):
-			self.refresh()
 			cmd = getInput()
 			try:
 				if(cmd[0] == "help"):
 					self.help()
-					self.doRefresh = False
 				elif(cmd[0] == "quit"):
 					break
 				elif(cmd[0] == "play"):
 					self.play(cmd[1], cmd[2])
-					self.doRefresh = False
+				elif(cmd[0] == "series"):
+					self.series(cmd[1], cmd[2], int(cmd[3]))
+				elif(cmd[0] == "clear" or cmd[0] == "back"):
+					self.refresh()
 				else:
 					print("Invalid command")
-					self.doRefresh = False
 			except IndexError:
 				print("Error parsing command")
-				self.doRefresh = False
 
 	def printTeams(self):
 		table = []
@@ -70,12 +79,35 @@ class MainShell(object):
 		try:
 			at = self.league.getTeam(atname)
 			ht = self.league.getTeam(htname)
-			g = Game(at, ht)
-			gr = g.playGame()
-			print gr.finalScore()
 		except KeyError:
 			print("Error parsing team names")
 			self.doRefresh = False
+			return
+		g = Game(at, ht)
+		gr = g.playGame()
+		system("clear")
+		print("%s: %d %s: %d\n")%(gr.atname, gr.atscore, gr.htname, gr.htscore)
+		print gr.atname
+		print tabulate(eventfilter(gr.atevents),["Player","Points"])+"\n"
+		print gr.htname
+		print tabulate(eventfilter(gr.htevents),["Player","Points"])
+
+	def series(self, atname, htname, n):
+		try:
+			at = self.league.getTeam(atname)
+			ht = self.league.getTeam(htname)
+		except KeyError:
+			print("Error parsing team names")
+			self.doRefresh = False
+			return
+		system("clear")
+		gr_table = []
+		for i in range(n):
+			g = Game(at, ht)
+			gr_table.append(g.playGame())
+		for gr in gr_table:
+			print("%s: %d %s: %d")%(gr.atname, gr.atscore, gr.htname, gr.htscore)
+
 
 main = init()
 main.run()

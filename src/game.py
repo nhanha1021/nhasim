@@ -1,5 +1,13 @@
 import random
 
+def calcScore(player, defense):
+	d = random.sample(defense, 3)
+	dsum = sum(p.defense for p in d)
+	i = random.randint(0, dsum)
+	if(i<player.offense):
+		return Event(1, player.fullName())
+	return Event(0, player.fullName())
+
 class Game(object):
 
 	def __init__(self, awayTeam, homeTeam):
@@ -7,41 +15,45 @@ class Game(object):
 		self.homeTeam = homeTeam
 		self.awayScore = 0
 		self.homeScore = 0
+		self.awayEvents = []
+		self.homeEvents = []
 
 	def playGame(self):
 		self.play(3)
 		while(self.awayScore == self.homeScore):
 			self.play(1)
-		return self.getResult()
+		return GameResult(self.awayTeam.teamName, self.awayScore, self.awayEvents, self.homeTeam.teamName, self.homeScore, self.homeEvents)
 
 	def play(self, n):
 		for i in range(n):
 			for player in self.awayTeam.allPlayers():
-				self.awayScore += calcScore(player, self.homeTeam.allPlayers())
+				e = calcScore(player, self.homeTeam.allPlayers())
+				self.awayEvents.append(e)
+				self.awayScore += e.point
 			for player in self.homeTeam.allPlayers():
-				self.homeScore += calcScore(player, self.awayTeam.allPlayers())
-
-
-	def getResult(self):
-		if(self.awayScore > self.homeScore):
-			return GameResult(self.awayTeam.teamName, self.awayScore, self.homeTeam.teamName, self.homeScore)
-		else:
-			return GameResult(self.homeTeam.teamName, self.homeScore, self.awayTeam.teamName, self.awayScore)
+				e = calcScore(player, self.awayTeam.allPlayers())
+				self.homeEvents.append(e)
+				self.homeScore += e.point
+		
 
 class GameResult(object):
-	def __init__(self, winner, wscore, loser, lscore):
-		self.winner = winner
-		self.loser = loser
-		self.wscore = wscore
-		self.lscore = lscore
 
-	def finalScore(self):
-		return ("%s %d \n%s %d") % (self.winner, self.wscore, self.loser, self.lscore)
+	def __init__(self, atname, atscore, atevents, htname, htscore, htevents):
+		self.atname = atname
+		self.atscore = atscore
+		self.atevents = atevents
+		self.htname = htname
+		self.htscore = htscore
+		self.htevents = htevents
 
-def calcScore(player, defense):
-	d = random.sample(defense, 3)
-	dsum = sum(p.defense for p in d)
-	i = random.randint(0, dsum)
-	if(i<player.offense):
-		return 1
-	return 0
+	def winner(self):
+		if(atscore > htscore):
+			return atname
+		else:
+			return htname
+
+class Event(object):
+	def __init__(self, point, playername):
+		self.point = point
+		self.playername = playername
+

@@ -5,22 +5,31 @@ import game
 from os import system
 import json, rostertool, sys, random
 
+def eventfilter(events):
+	table = []
+	for event in events:
+		for entry in table:
+			if(entry[0] == event.playername):
+				entry[1] += event.point
+				break
+		else:
+			table.append([event.playername, event.point])
+	return table
+
 l = rostertool.loadLeague("USFL")
-t1 = l.getTeam("Boston")
-t2 = l.getTeam("New Jersey")
+at = l.getTeam("Boston")
+ht = l.getTeam("New Jersey")
 
-t1_wins = 0
-t2_wins = 0
+g = Game(at, ht)
+gr = g.playGame()
 
-N = 100
+print gr.atname, gr.atscore, gr.htname, gr.htscore
+print ""
+for entry in eventfilter(gr.atevents):
+	print entry[0], entry[1]
+print ""
+for entry in eventfilter(gr.htevents):
+	print entry[0], entry[1]
 
-for i in range(N):
-	g = Game(t1, t2)
-	gr = g.playGame()
-	if(gr.winner == t1.teamName):
-		t1_wins += 1
-	else:
-		t2_wins += 1
 
-print("t1 %d t2 %d") % (t1_wins, t2_wins)
-print("t1 pct %.1f") % (float(t1_wins)/N*100)
+
