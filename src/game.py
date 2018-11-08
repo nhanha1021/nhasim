@@ -34,6 +34,9 @@ class Game(object):
 				e = calcScore(player, self.awayTeam.allPlayers())
 				self.homeEvents.append(e)
 				self.homeScore += e.point
+
+	def get_headline(self):
+		return ("{} @ {}".format(self.awayTeam.teamName,self.homeTeam.teamName))
 		
 
 class GameResult(object):
@@ -51,6 +54,15 @@ class GameResult(object):
 			return self.atname
 		else:
 			return self.htname
+
+	def loser(self):
+		if(self.atscore > self.htscore):
+			return self.htname
+		else:
+			return self.atname
+
+	def results(self):
+		return ("{}: {} - {}: {}".format(self.atname,self.atscore,self.htname,self.htscore))
 
 class Event(object):
 	def __init__(self, point, playername):
