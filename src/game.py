@@ -35,9 +35,8 @@ class Game(object):
 				self.homeEvents.append(e)
 				self.homeScore += e.point
 
-	def get_headline(self):
+	def headline(self):
 		return ("{} @ {}".format(self.awayTeam.teamName,self.homeTeam.teamName))
-		
 
 class GameResult(object):
 

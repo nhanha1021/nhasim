@@ -1,4 +1,5 @@
 import rostertool, random
+from game import Game
 
 def shift(array):
 	start = array.pop(0)
@@ -10,7 +11,7 @@ def sort_matches(teams_a, teams_h):
 	group = []
 	for i in range(len(teams_a)):
 		for j in range(len(teams_a)):
-			group.append((teams_a[j],teams_h[j]))
+			group.append(Game(teams_a[j],teams_h[j]))
 		shift(teams_a)
 	teams_a1 = teams_a[:len(teams_a)/2]
 	teams_a2 = teams_a[len(teams_a)/2:]
@@ -57,11 +58,14 @@ def get_matches(teams):
 	O = L1_2_2_2[:len(L1_2_2_2)-1]
 
 	weeks = []
-
 	weeks.append(A[0:8])
 	weeks.append(A[8:16])
 	weeks.append(A[16:24])
 	weeks.append(A[24:32])
+	weeks.append(A[32:40])
+	weeks.append(A[40:48])
+	weeks.append(A[48:56])
+	weeks.append(A[56:64])
 	weeks.append(B[0:4]+C[0:4])
 	weeks.append(B[4:8]+C[4:8])
 	weeks.append(B[8:12]+C[8:12])
@@ -69,7 +73,6 @@ def get_matches(teams):
 	weeks.append(D[0:2]+E[0:2]+F[0:2]+G[0:2])
 	weeks.append(D[2:4]+E[2:4]+F[2:4]+G[2:4])
 	weeks.append(H+I+J+K+L+M+N+O)
-
  	return weeks
 
 def make_schedule(teams):
