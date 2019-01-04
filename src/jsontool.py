@@ -43,7 +43,7 @@ def JsonToTeam(data):
 	jsonroster = data[ROSTER_LABEL]
 	for jsonplayer in jsonroster:
 		player = JsonToPlayer(jsonplayer)
-		team.addPlayer(player)
+		team.add_player(player)
 	return team
 	
 def LeagueToJson(league):

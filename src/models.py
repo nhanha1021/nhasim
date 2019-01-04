@@ -18,7 +18,7 @@ class Team(object):
 	def getPlayer(self, playerName):
 		return self.roster[self.toKey(playerName)]
 
-	def addPlayer(self, player):
+	def add_player(self, player):
 		self.roster[self.toKey(player.fullName())] = player
 
 	def removePlayer(self, playerName):
