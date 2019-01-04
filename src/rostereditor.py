@@ -77,8 +77,8 @@ class MainShell(object):
 	def printTeams(self):
 		table = []
 		for team in self.league.allTeams():
-			table.append([team.teamName])
-		print tabulate(table,["Teams"])
+			table.append([team.teamName, team.avgOff(), team.avgDef()])
+		print tabulate(table,["Teams", "OFF", "DEF"])
 
 	def view(self,teamName):
 		try:

@@ -1,21 +1,13 @@
-from models import League, Team
-from tabulate import tabulate
-from os import system
-import json, rostertool, sys
+from models import League
+import schedule, rostertool
 
-table = []
-table.append(["Dogs",3])
-table.append(["DogsDogsDogs", 44])
+league = rostertool.loadLeague("USFL")
+s = schedule.make_schedule([i for i in range(1,17)])
 
-t = tabulate(table)
-header = ""
-for i in range(len(t)):
-	header += "-"
+i = 0
+for w in s:
+	print w
 
-j = len(t.split("\n")[0])
-header = ""
-for i in range(j):
-	header +="="
 
-print header
-print t
+
+

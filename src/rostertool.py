@@ -5,7 +5,7 @@ import json, jsontool, randomname, random
 
 PLAYER_DATA_PATH = "/Users/johnshea/Repos/nhasim_python/player_data/"
 TEAM_DATA_PATH = "/Users/johnshea/Repos/nhasim_python/team_data/"
-LEAGUE_DATA_PATH = "/Users/johnshea/Repos/nhasim_python/league_data/"
+LEAGUE_DATA_PATH = "/Users/johnshea/Repos/nhasim_python/data/"
 
 def writePlayer(player):
 	data = jsontool.PlayerToJson(player)
