@@ -29,7 +29,7 @@ def print_upcoming_games(cur_week, week_no,rankings):
 def play_week(cur_week):
 	week_results = []
 	for game in cur_week:
-		gr = game.playGame()
+		gr = game.play_game()
 		week_results.append(gr)
 	return week_results
 

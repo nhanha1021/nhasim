@@ -18,7 +18,7 @@ class Game(object):
 		self.awayEvents = []
 		self.homeEvents = []
 
-	def playGame(self):
+	def play_game(self):
 		self.play(3)
 		while(self.awayScore == self.homeScore):
 			self.play(1)
