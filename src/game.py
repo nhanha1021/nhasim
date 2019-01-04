@@ -1,13 +1,5 @@
 import random
 
-def calcScore(player, defense):
-	d = random.sample(defense, 3)
-	dsum = sum(p.defense for p in d)
-	i = random.randint(0, dsum)
-	if(i<player.offense):
-		return Event(1, player.fullName())
-	return Event(0, player.fullName())
-
 class Game(object):
 
 	def __init__(self, awayTeam, homeTeam):
@@ -27,16 +19,24 @@ class Game(object):
 	def play(self, n):
 		for i in range(n):
 			for player in self.awayTeam.allPlayers():
-				e = calcScore(player, self.homeTeam.allPlayers())
+				e = self.calcScore(player, self.homeTeam.allPlayers())
 				self.awayEvents.append(e)
 				self.awayScore += e.point
 			for player in self.homeTeam.allPlayers():
-				e = calcScore(player, self.awayTeam.allPlayers())
+				e = self.calcScore(player, self.awayTeam.allPlayers())
 				self.homeEvents.append(e)
 				self.homeScore += e.point
 
 	def headline(self):
 		return ("{} @ {}".format(self.awayTeam.teamName,self.homeTeam.teamName))
+
+	def calcScore(player, defense):
+	d = random.sample(defense, 3)
+	dsum = sum(p.defense for p in d)
+	i = random.randint(0, dsum)
+	if(i<player.offense):
+		return Event(1, player.fullName())
+	return Event(0, player.fullName())
 
 class GameResult(object):
 

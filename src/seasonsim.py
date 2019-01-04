@@ -1,9 +1,10 @@
 from models import League
 from tabulate import tabulate
-import rostertool, schedule
+import rostertool, schedule, sys
 
+league_name = sys.argv[1]
 #Load league
-league = rostertool.loadLeague("USFL")
+league = rostertool.loadLeague(league_name)
 
 #TODO: Fix schedule 
 season_schedule = schedule.make_schedule(league.allTeams())
