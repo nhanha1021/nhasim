@@ -28,12 +28,18 @@ class Team(object):
 		return self.roster.values()
 
 	def avgOff(self):
-		s = sum(p.offense for p in self.allPlayers())
-		return s/len(self.allPlayers())
+		try:
+			s = sum(p.offense for p in self.allPlayers())
+			return s/len(self.allPlayers())
+		except(ZeroDivisionError):
+			return 0
 
 	def avgDef(self):
-		s = sum(p.defense for p in self.allPlayers())
-		return s/len(self.allPlayers())
+		try:
+			s = sum(p.defense for p in self.allPlayers())
+			return s/len(self.allPlayers())
+		except(ZeroDivisionError):
+			return 0
 
 	def toKey(self, playerName):
 		key = playerName.lower().replace(" ","")

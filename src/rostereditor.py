@@ -42,6 +42,8 @@ class MainShell(object):
 		table.append(["view X", "View the details of team X"])
 		table.append(["set name X", "Set the name of the leauge to X"])
 		table.append(["mktrade X Y", "Make a trade between Team X and Team Y"])
+		table.append(["save","Save the current league"])
+		table.append(["saveas X", "Save the league under the name X"])
 		table.append(["quit","End the program"])
 		print tabulate(table)
 
@@ -60,6 +62,8 @@ class MainShell(object):
 					self.set(cmd[1], cmd[2])
 				elif(cmd[0] == "save"):
 					self.save()
+				elif(cmd[0] == "saveas"):
+					self.saveas(cmd[1])
 				elif(cmd[0] == "mktrade"):
 					self.mktrade(cmd[1], cmd[2])
 				elif(cmd[0] == "help"):
@@ -104,6 +108,10 @@ class MainShell(object):
 			self.league.leagueName = value
 
 	def save(self):
+		rostertool.writeLeague(self.league)
+
+	def saveas(self, name):
+		self.league.leagueName = name
 		rostertool.writeLeague(self.league)
 
 	def mktrade(self, team1Name, team2Name):
