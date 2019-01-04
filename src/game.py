@@ -30,13 +30,13 @@ class Game(object):
 	def headline(self):
 		return ("{} @ {}".format(self.awayTeam.teamName,self.homeTeam.teamName))
 
-	def calcScore(player, defense):
-	d = random.sample(defense, 3)
-	dsum = sum(p.defense for p in d)
-	i = random.randint(0, dsum)
-	if(i<player.offense):
-		return Event(1, player.fullName())
-	return Event(0, player.fullName())
+	def calcScore(self, player, defense):
+		d = random.sample(defense, 3)
+		dsum = sum(p.defense for p in d)
+		i = random.randint(0, dsum)
+		if(i<player.offense):
+			return Event(1, player.fullName())
+		return Event(0, player.fullName())
 
 class GameResult(object):
 
