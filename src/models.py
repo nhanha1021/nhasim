@@ -1,5 +1,10 @@
-class Player(object):
+import random, randomname
 
+def _to_key(teamName):
+		key = teamName.lower().replace(" ","")
+		return key
+
+class Player(object):
 	def __init__(self, firstName, lastName, offense, defense):
 		self.firstName = firstName
 		self.lastName = lastName
@@ -9,6 +14,14 @@ class Player(object):
 	def fullName(self):
 		return ("%s %s") % (self.firstName, self.lastName)
 
+	@classmethod
+	def random_player(cls,low,high):
+		firstName = randomname.getFirstName()
+		lastName = randomname.getLastName()
+		offense = random.randint(low, high)
+		defense = random.randint(low, high)
+		return cls(firstName, lastName, offense, defense)
+
 class Team(object):
 
 	def __init__(self, teamName):
@@ -16,13 +29,13 @@ class Team(object):
 		self.roster = {}
 
 	def getPlayer(self, playerName):
-		return self.roster[self.toKey(playerName)]
+		return self.roster[_to_key(playerName)]
 
 	def add_player(self, player):
-		self.roster[self.toKey(player.fullName())] = player
+		self.roster[_to_key(player.fullName())] = player
 
 	def removePlayer(self, playerName):
-		del self.roster[self.toKey(playerName)]
+		del self.roster[_to_key(playerName)]
 
 	def allPlayers(self):
 		return self.roster.values()
@@ -41,10 +54,6 @@ class Team(object):
 		except(ZeroDivisionError):
 			return 0
 
-	def toKey(self, playerName):
-		key = playerName.lower().replace(" ","")
-		return key
-
 class League(object):
 
 	def __init__(self, leagueName):
@@ -52,17 +61,61 @@ class League(object):
 		self.teamRoster = {}
 
 	def getTeam(self,teamName):
-		return self.teamRoster[self.toKey(teamName)]
+		return self.teamRoster[_to_key(teamName)]
 
 	def addTeam(self, team):
-		self.teamRoster[self.toKey(team.teamName)] = team
+		self.teamRoster[_to_key(team.teamName)] = team
 
 	def removeTeam(self, teamName):
-		del self.teamRoster[self.toKey(teamName)]
+		del self.teamRoster[_to_key(teamName)]
 
 	def allTeams(self):
 		return self.teamRoster.values()
 
-	def toKey(self,teamName):
-		key = teamName.lower().replace(" ","")
-		return key
+class DraftClass(object):
+
+	def __init__(self, class_name):
+		self.class_name = class_name
+		self.members = []
+		self.candidates = self._init_candidates()
+
+	def get_class_name(self):
+		return self.class_name
+
+	def _init_candidates(self):
+		candidates = {}
+		count = 0
+		# Top-level talent
+		for i in range(random.randint(1,10)):
+			candidate = Player.random_player(80,99)
+			candidates[count] = candidate
+			count += 1
+		# Mid-level talent
+		for i in range(random.randint(20,50)):
+			candidate = Player.random_player(65,85)
+			candidates[count] = candidate
+			count += 1
+		# Low-level talent
+		for i in range(random.randint(30,60)):
+			candidate = Player.random_player(50,75)
+			candidates[count] = candidate
+			count += 1
+
+		return candidates
+
+	def get_candidates_info(self):
+		info = []
+		for number, candidate in self.candidates.items():
+			info.append([number, candidate.fullName(), candidate.offense, candidate.defense]) 
+		return info
+
+	def draft_candidate(self, number, team_name):
+		member = self.candidates.pop(number)
+		self.members.append((member.fullName(),team_name))
+		return member
+
+	def get_draft_results(self):
+		return self.members
+
+
+

@@ -52,4 +52,3 @@ def createRandomPlayer(low, high):
 	offense = random.randint(low, high)
 	defense = random.randint(low, high)
 	return Player(firstName, lastName, offense, defense)
-	
