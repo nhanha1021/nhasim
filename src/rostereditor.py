@@ -3,7 +3,7 @@ from models import League, Team, Player
 from tabulate import tabulate
 from os import system
 
-def getInput():
+def get_input():
 	inp = raw_input("\n")
 	inp = inp.rstrip().lstrip()
 	cmd = inp.split()
@@ -23,7 +23,6 @@ def init():
 	return MainShell(league)
 
 class MainShell(object):
-
 	def __init__(self, league):
 		self.league = league
 		self.doRefresh = True
@@ -32,7 +31,7 @@ class MainShell(object):
 		if(self.doRefresh):
 			system("clear")
 			print("League: %s\n" % self.league.leagueName)
-			self.printTeams()
+			self.print_teams()
 		self.doRefresh = True
 
 	def help(self):
@@ -50,7 +49,7 @@ class MainShell(object):
 	def run(self):
 		while(True):
 			self.refresh()
-			cmd = getInput()
+			cmd = get_input()
 			try:
 				if(cmd[0] == "add"):
 					self.add(cmd[1])
@@ -78,7 +77,7 @@ class MainShell(object):
 				print("Error parsing command")
 				self.doRefresh = False
 
-	def printTeams(self):
+	def print_teams(self):
 		table = []
 		for team in self.league.allTeams():
 			table.append([team.teamName, team.avgOff(), team.avgDef()])
@@ -125,7 +124,6 @@ class MainShell(object):
 			self.doRefresh = False
 
 class TeamShell(object):
-
 	def __init__(self, team):
 		self.team = team
 		self.doRefresh = True
@@ -133,7 +131,7 @@ class TeamShell(object):
 	def refresh(self):
 		if(self.doRefresh):
 			system("clear")
-			self.printRoster()
+			self.print_roster()
 		self.doRefresh = True
 
 	def help(self):
@@ -148,7 +146,7 @@ class TeamShell(object):
 	def run(self):
 		while(True):
 			self.refresh()
-			cmd = getInput()
+			cmd = get_input()
 			try:
 				if(cmd[0] == "view"):
 					self.view(cmd[1])
@@ -170,7 +168,7 @@ class TeamShell(object):
 				print("Error parsing command")
 				self.doRefresh = False
 
-	def printRoster(self):
+	def print_roster(self):
 		table = []
 		for player in self.team.allPlayers():
 			table.append([player.fullName(), player.offense, player.defense])
@@ -202,7 +200,6 @@ class TeamShell(object):
 			self.team.add_player(rostertool.createRandomPlayer(55,75))
 
 class PlayerShell(object):
-
 	def __init__(self, player):
 		self.player = player
 		self.doRefresh = True
@@ -210,7 +207,7 @@ class PlayerShell(object):
 	def refresh(self):
 		if(self.doRefresh):
 			system("clear")
-			self.printPlayer()
+			self.print_player()
 		self.doRefresh = True
 
 	def help(self):
@@ -223,7 +220,7 @@ class PlayerShell(object):
 	def run(self):
 		while(True):
 			self.refresh()
-			cmd = getInput()
+			cmd = get_input()
 			try:
 				if(cmd[0] == "set"):
 					self.set(cmd[1], cmd[2])
@@ -239,7 +236,7 @@ class PlayerShell(object):
 				print("Error parsing command")
 				self.doRefresh = False
 
-	def printPlayer(self):
+	def print_player(self):
 		print(("Name: %s") % (self.player.fullName()))
 		print(("Offense: %d") % (self.player.offense))
 		print(("Defense: %d") % (self.player.defense))
@@ -259,7 +256,7 @@ class TradeShell(object):
 	def refresh(self):
 		if(self.doRefresh):
 			system("clear")
-			self.printRosters()
+			self.print_rosters()
 		self.doRefresh = True
 
 	def help(self):
@@ -271,7 +268,7 @@ class TradeShell(object):
 	def run(self):
 		while(True):
 			self.refresh()
-			cmd = getInput()
+			cmd = get_input()
 			try:
 				if(cmd[0] == "trade"):
 					self.trade(cmd[1],cmd[2])
@@ -287,7 +284,7 @@ class TradeShell(object):
 				print("Error parsing command")
 				self.doRefresh = False
 
-	def printRosters(self):
+	def print_rosters(self):
 		table1 = []
 		for player in self.team1.allPlayers():
 			table1.append([player.fullName(),player.offense,player.defense])
@@ -316,7 +313,6 @@ class TradeShell(object):
 			print("Error parsing player names")
 			self.doRefresh = False
 			return
-
 		for player in players1:
 			self.team1.removePlayer(player.fullName())
 			self.team2.add_player(player)
