@@ -3,8 +3,8 @@ from models import League, Team, Player
 from tabulate import tabulate
 from os import system
 
-def get_input():
-	inp = raw_input("\n")
+def _get_input():
+	inp = raw_input("\n>")
 	inp = inp.rstrip().lstrip()
 	cmd = inp.split()
 	if(len(cmd) == 0):
@@ -14,7 +14,7 @@ def get_input():
 		cmd[i] = cmd[i].replace("_", " ")
 	return cmd
 
-def init():
+def _initialize():
 	system("clear")
 	if(len(sys.argv) == 1):
 		league = League("")
@@ -49,7 +49,7 @@ class MainShell(object):
 	def run(self):
 		while(True):
 			self.refresh()
-			cmd = get_input()
+			cmd = _get_input()
 			try:
 				if(cmd[0] == "add"):
 					self.add(cmd[1])
@@ -146,7 +146,7 @@ class TeamShell(object):
 	def run(self):
 		while(True):
 			self.refresh()
-			cmd = get_input()
+			cmd = _get_input()
 			try:
 				if(cmd[0] == "view"):
 					self.view(cmd[1])
@@ -220,7 +220,7 @@ class PlayerShell(object):
 	def run(self):
 		while(True):
 			self.refresh()
-			cmd = get_input()
+			cmd = _get_input()
 			try:
 				if(cmd[0] == "set"):
 					self.set(cmd[1], cmd[2])
@@ -268,7 +268,7 @@ class TradeShell(object):
 	def run(self):
 		while(True):
 			self.refresh()
-			cmd = get_input()
+			cmd = _get_input()
 			try:
 				if(cmd[0] == "trade"):
 					self.trade(cmd[1],cmd[2])
@@ -320,8 +320,62 @@ class TradeShell(object):
 			self.team2.removePlayer(player.fullName())
 			self.team1.add_player(player)
 
-main = init()
-main.run()
+class DraftShell(object):
+	def __init__(self, league, draft_class):
+		self.league = league
+		self.draft_class = draft_class
+
+	def _help(self):
+		pass
+
+	def run(self):
+		while(True):
+			cmd = _get_input()
+			try:
+				if(cmd[0] == "back"):
+					break
+				elif(cmd[0] == "help"):
+					self._help()
+				elif(cmd[0] == "candidates"):
+					self._print_candidates()
+				elif(cmd[0] == "draft"):
+					self._draft_player(int(cmd[1]),cmd[2])
+				elif(cmd[0] == "results"):
+					self._print_draft_results()
+				else:
+					print("Invalid Command")
+			except(IndexError, ValueError):
+				print("Error parsing command")
+
+	def _print_draft_results(self):
+		results = []
+		count = 1
+		for member, team_name in self.draft_class.get_draft_results():
+			results.append([count,member.fullName(),team_name])
+			count += 1
+		print("\nDraft Results")
+		print(tabulate(results,["Pick","Player","Drafted By"]))
+
+	def _print_candidates(self):
+		table = self.draft_class.get_candidates_info()
+		print("\n"+tabulate(table,["ID","Name","Offense","Defense"]))
+
+	def _draft_player(self, number, team_name):
+		try:
+			drafting_team_name = self.league.getTeam(team_name).teamName
+		except(KeyError):
+			print("Error parsing team name")
+		try:
+			player = self.draft_class.draft_candidate(number, drafting_team_name)
+		except(KeyError):
+			print("Error parsing draft number")
+		print("Drafted {} to {}".format(player.fullName(), drafting_team_name))
+
+
+
+
+#main = _initialize()
+#main.run()
 
 
 

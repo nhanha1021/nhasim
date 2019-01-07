@@ -111,7 +111,7 @@ class DraftClass(object):
 
 	def draft_candidate(self, number, team_name):
 		member = self.candidates.pop(number)
-		self.members.append((member.fullName(),team_name))
+		self.members.append((member,team_name))
 		return member
 
 	def get_draft_results(self):
