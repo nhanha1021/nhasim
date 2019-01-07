@@ -42,6 +42,8 @@ class MainShell(object):
 		table.append(["view X", "View the details of team X"])
 		table.append(["set name X", "Set the name of the leauge to X"])
 		table.append(["mktrade X Y", "Make a trade between Team X and Team Y"])
+		table.append(["save","Save the current league"])
+		table.append(["saveas X", "Save the league under the name X"])
 		table.append(["quit","End the program"])
 		print tabulate(table)
 
@@ -60,6 +62,8 @@ class MainShell(object):
 					self.set(cmd[1], cmd[2])
 				elif(cmd[0] == "save"):
 					self.save()
+				elif(cmd[0] == "saveas"):
+					self.saveas(cmd[1])
 				elif(cmd[0] == "mktrade"):
 					self.mktrade(cmd[1], cmd[2])
 				elif(cmd[0] == "help"):
@@ -106,6 +110,10 @@ class MainShell(object):
 	def save(self):
 		rostertool.writeLeague(self.league)
 
+	def saveas(self, name):
+		self.league.leagueName = name
+		rostertool.writeLeague(self.league)
+
 	def mktrade(self, team1Name, team2Name):
 		try:
 			team1 = self.league.getTeam(team1Name)
@@ -131,7 +139,7 @@ class TeamShell(object):
 	def help(self):
 		table = []
 		table.append(["add", "Add player to the team"])
-		table.append(["addrand", "Add a random player to the team"])
+		table.append(["addrand X", "Add a random player to the team of grade A,B,C"])
 		table.append(["rm X", "Remove player X from the team"])
 		table.append(["view X","View the details of player X"])
 		table.append(["back","Return to the league screen"])
@@ -147,7 +155,7 @@ class TeamShell(object):
 				elif(cmd[0] == "add"):
 					self.add()
 				elif(cmd[0] == "addrand"):
-					self.addrand()
+					self.addrand(cmd[1])
 				elif(cmd[0] == "rm"):
 					self.team.removePlayer(cmd[1])
 				elif(cmd[0] == "help"):
@@ -183,10 +191,15 @@ class TeamShell(object):
 		last = raw_input("Last Name: ")
 		off = raw_input("Offense: ")
 		defs = raw_input("Defense: ")
-		self.team.addPlayer(Player(first,last,off,defs))
+		self.team.add_player(Player(first,last,off,defs))
 
-	def addrand(self):
-		self.team.addPlayer(rostertool.createRandomPlayer(50,99))
+	def addrand(self, grade):
+		if(grade=="A"):
+			self.team.add_player(rostertool.createRandomPlayer(85,99))
+		if(grade=="B"):
+			self.team.add_player(rostertool.createRandomPlayer(75,89))
+		if(grade=="C"):
+			self.team.add_player(rostertool.createRandomPlayer(55,75))
 
 class PlayerShell(object):
 
@@ -306,10 +319,10 @@ class TradeShell(object):
 
 		for player in players1:
 			self.team1.removePlayer(player.fullName())
-			self.team2.addPlayer(player)
+			self.team2.add_player(player)
 		for player in players2:
 			self.team2.removePlayer(player.fullName())
-			self.team1.addPlayer(player)
+			self.team1.add_player(player)
 
 main = init()
 main.run()
