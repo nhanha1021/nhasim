@@ -394,9 +394,7 @@ class DraftShell(object):
 	def _finish_draft(self):
 		for member, team_name in self.draft_class.get_draft_results():
 			self.league.getTeam(team_name).add_player(member)
-
-
-
+			
 main = _initialize()
 main.run()
 
