@@ -1,5 +1,5 @@
 import sys, rostertool
-from models import League, Team, Player
+from models import *
 from tabulate import tabulate
 from os import system
 
@@ -39,8 +39,9 @@ class MainShell(object):
 		table.append(["add X", "Add a team named X to the league"])
 		table.append(["rm X", "Remove team X from the league"])
 		table.append(["view X", "View the details of team X"])
-		table.append(["set name X", "Set the name of the leauge to X"])
+		table.append(["set name X", "Set the name of the league to X"])
 		table.append(["mktrade X Y", "Make a trade between Team X and Team Y"])
+		table.append(["draft", "Create a draft for the league"])
 		table.append(["save","Save the current league"])
 		table.append(["saveas X", "Save the league under the name X"])
 		table.append(["quit","End the program"])
@@ -65,6 +66,8 @@ class MainShell(object):
 					self.saveas(cmd[1])
 				elif(cmd[0] == "mktrade"):
 					self.mktrade(cmd[1], cmd[2])
+				elif(cmd[0] == "draft"):
+					self._draft()
 				elif(cmd[0] == "help"):
 					self.help()
 					self.doRefresh = False
@@ -122,6 +125,12 @@ class MainShell(object):
 		except KeyError:
 			print("Error parsing team names")
 			self.doRefresh = False
+
+	def _draft(self):
+		draft_name = self.league.leagueName+"Draft Class"
+		draft_class = DraftClass(draft_name)
+		draft_shell = DraftShell(self.league, draft_class)
+		draft_shell.run()
 
 class TeamShell(object):
 	def __init__(self, team):
@@ -326,9 +335,20 @@ class DraftShell(object):
 		self.draft_class = draft_class
 
 	def _help(self):
-		pass
+		table = []
+		table.append(["cand","View the remaining draft candidates"])
+		table.append(["draft X Y","Draft candidate with number X to team Y"])
+		table.append(["back","Quit the draft without saving"])
+		table.append(["finish","Finish the draft and exit"])
+		print(tabulate(table))
+
+	def _refresh(self):
+		system("clear")
+		self._print_draft_results()
 
 	def run(self):
+		system("clear")
+		print("Welcome to the {} Draft!".format(self.league.leagueName))
 		while(True):
 			cmd = _get_input()
 			try:
@@ -336,12 +356,14 @@ class DraftShell(object):
 					break
 				elif(cmd[0] == "help"):
 					self._help()
-				elif(cmd[0] == "candidates"):
+				elif(cmd[0] == "cand"):
 					self._print_candidates()
 				elif(cmd[0] == "draft"):
 					self._draft_player(int(cmd[1]),cmd[2])
-				elif(cmd[0] == "results"):
-					self._print_draft_results()
+					self._refresh()
+				elif(cmd[0] == "finish"):
+					self._finish_draft()
+					break
 				else:
 					print("Invalid Command")
 			except(IndexError, ValueError):
@@ -353,7 +375,6 @@ class DraftShell(object):
 		for member, team_name in self.draft_class.get_draft_results():
 			results.append([count,member.fullName(),team_name])
 			count += 1
-		print("\nDraft Results")
 		print(tabulate(results,["Pick","Player","Drafted By"]))
 
 	def _print_candidates(self):
@@ -369,13 +390,15 @@ class DraftShell(object):
 			player = self.draft_class.draft_candidate(number, drafting_team_name)
 		except(KeyError):
 			print("Error parsing draft number")
-		print("Drafted {} to {}".format(player.fullName(), drafting_team_name))
+
+	def _finish_draft(self):
+		for member, team_name in self.draft_class.get_draft_results():
+			self.league.getTeam(team_name).add_player(member)
 
 
 
-
-#main = _initialize()
-#main.run()
+main = _initialize()
+main.run()
 
 
 
