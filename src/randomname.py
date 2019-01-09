@@ -1,7 +1,7 @@
 import random
 from math import *
 
-def get_first_name()():
+def get_first_name():
 	firstNames = []
 	with open("/Users/johnshea/Repos/nhasim_python/res/malenames.txt",'r') as f:
 		firstNames = list(f)
@@ -28,6 +28,6 @@ def get_last_name():
 	return lastNames[f]
 
 def get_full_name():
-	name = get_first_name()()+" "+get_last_name()
+	name = get_first_name()+" "+get_last_name()
 	return name
 
