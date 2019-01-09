@@ -25,21 +25,18 @@ def _initialize():
 class MainShell(object):
 	def __init__(self, league):
 		self.league = league
-		self.doRefresh = True
 
-	def refresh(self):
-		if(self.doRefresh):
-			system("clear")
-			print("League: %s\n" % self.league.leagueName)
-			self.print_teams()
-		self.doRefresh = True
+	def _refresh(self):
+		system("clear")
+		print(self.league.leagueName+"\n")
+		self._print_teams()
 
-	def help(self):
+	def _help(self):
 		table = []
 		table.append(["add X", "Add a team named X to the league"])
 		table.append(["rm X", "Remove team X from the league"])
 		table.append(["view X", "View the details of team X"])
-		table.append(["set name X", "Set the name of the league to X"])
+		table.append(["setname X", "Set the name of the league to X"])
 		table.append(["mktrade X Y", "Make a trade between Team X and Team Y"])
 		table.append(["draft", "Create a draft for the league"])
 		table.append(["save","Save the current league"])
@@ -48,45 +45,48 @@ class MainShell(object):
 		print tabulate(table)
 
 	def run(self):
+		self._refresh()
 		while(True):
-			self.refresh()
 			cmd = _get_input()
 			try:
 				if(cmd[0] == "add"):
-					self.add(cmd[1])
+					self._add_team(cmd[1])
+					self._refresh()
 				elif(cmd[0] == "rm"):
-					self.rm(cmd[1])
+					self._remove_team(cmd[1])
+					self._refresh()
 				elif(cmd[0] == "view"):
-					self.view(cmd[1])
-				elif(cmd[0] == "set"):
-					self.set(cmd[1], cmd[2])
+					self._view_team(cmd[1])
+					self._refresh()
+				elif(cmd[0] == "setname"):
+					self._set_name(cmd[1])
+					self._refresh()
 				elif(cmd[0] == "save"):
-					self.save()
+					self._save()
 				elif(cmd[0] == "saveas"):
-					self.saveas(cmd[1])
+					self._save_as(cmd[1])
 				elif(cmd[0] == "mktrade"):
-					self.mktrade(cmd[1], cmd[2])
+					self._make_trade(cmd[1], cmd[2])
+					self._refresh()
 				elif(cmd[0] == "draft"):
 					self._draft()
+					self.refresh()
 				elif(cmd[0] == "help"):
-					self.help()
-					self.doRefresh = False
+					self._help()
 				elif(cmd[0] == "quit"):
 					break
 				else:
 					print("Invalid command")
-					self.doRefresh = False
 			except IndexError:
 				print("Error parsing command")
-				self.doRefresh = False
 
-	def print_teams(self):
+	def _print_teams(self):
 		table = []
 		for team in self.league.allTeams():
 			table.append([team.teamName, team.avgOff(), team.avgDef()])
 		print tabulate(table,["Teams", "OFF", "DEF"])
 
-	def view(self,teamName):
+	def _view_team(self,teamName):
 		try:
 			team = self.league.getTeam(teamName)
 			ts = TeamShell(team)
@@ -95,28 +95,27 @@ class MainShell(object):
 			print("Error parsing team name")
 			self.doRefresh = False
 
-	def add(self,teamName):
+	def _add_team(self,teamName):
 		self.league.addTeam(Team(teamName))
 
-	def rm(self,teamName):
+	def _remove_team(self,teamName):
 		try:
 			self.league.removeTeam(teamName)
 		except KeyError:
 			print("Error parsing team name")
 			self.doRefresh = False
 
-	def set(self,item,value):
-		if(item == "name"):
-			self.league.leagueName = value
+	def _set_name(self, value):
+		self.league.leagueName = value
 
-	def save(self):
+	def _save(self):
 		rostertool.writeLeague(self.league)
 
-	def saveas(self, name):
+	def _save_as(self, name):
 		self.league.leagueName = name
 		rostertool.writeLeague(self.league)
 
-	def mktrade(self, team1Name, team2Name):
+	def _make_trade(self, team1Name, team2Name):
 		try:
 			team1 = self.league.getTeam(team1Name)
 			team2 = self.league.getTeam(team2Name)
