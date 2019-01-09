@@ -42,7 +42,7 @@ class MainShell(object):
 		table.append(["save","Save the current league"])
 		table.append(["saveas X", "Save the league under the name X"])
 		table.append(["quit","End the program"])
-		print tabulate(table)
+		print(tabulate(table))
 
 	def run(self):
 		self._refresh()
@@ -51,33 +51,27 @@ class MainShell(object):
 			try:
 				if(cmd[0] == "add"):
 					self._add_team(cmd[1])
-					self._refresh()
 				elif(cmd[0] == "rm"):
 					self._remove_team(cmd[1])
-					self._refresh()
 				elif(cmd[0] == "view"):
 					self._view_team(cmd[1])
-					self._refresh()
 				elif(cmd[0] == "setname"):
 					self._set_name(cmd[1])
-					self._refresh()
 				elif(cmd[0] == "save"):
 					self._save()
 				elif(cmd[0] == "saveas"):
 					self._save_as(cmd[1])
 				elif(cmd[0] == "mktrade"):
 					self._make_trade(cmd[1], cmd[2])
-					self._refresh()
 				elif(cmd[0] == "draft"):
 					self._draft()
-					self.refresh()
 				elif(cmd[0] == "help"):
 					self._help()
 				elif(cmd[0] == "quit"):
 					break
 				else:
 					print("Invalid command")
-			except IndexError:
+			except(IndexError):
 				print("Error parsing command")
 
 	def _print_teams(self):
@@ -91,9 +85,9 @@ class MainShell(object):
 			team = self.league.getTeam(teamName)
 			ts = TeamShell(team)
 			ts.run()
-		except KeyError:
+			self._refresh()
+		except(KeyError):
 			print("Error parsing team name")
-			self.doRefresh = False
 
 	def _add_team(self,teamName):
 		self.league.addTeam(Team(teamName))
@@ -101,12 +95,13 @@ class MainShell(object):
 	def _remove_team(self,teamName):
 		try:
 			self.league.removeTeam(teamName)
-		except KeyError:
+			self._refresh()
+		except(KeyError):
 			print("Error parsing team name")
-			self.doRefresh = False
 
 	def _set_name(self, value):
 		self.league.leagueName = value
+		self._refresh()
 
 	def _save(self):
 		rostertool.writeLeague(self.league)
@@ -121,28 +116,26 @@ class MainShell(object):
 			team2 = self.league.getTeam(team2Name)
 			ts = TradeShell(team1, team2)
 			ts.run()
-		except KeyError:
+			self.refresh()
+		except(KeyError):
 			print("Error parsing team names")
-			self.doRefresh = False
 
 	def _draft(self):
 		draft_name = self.league.leagueName+"Draft Class"
 		draft_class = DraftClass(draft_name)
 		draft_shell = DraftShell(self.league, draft_class)
 		draft_shell.run()
+		self.refresh()
 
 class TeamShell(object):
 	def __init__(self, team):
 		self.team = team
-		self.doRefresh = True
 
-	def refresh(self):
-		if(self.doRefresh):
-			system("clear")
-			self.print_roster()
-		self.doRefresh = True
+	def _refresh(self):
+		system("clear")
+		self._print_roster()
 
-	def help(self):
+	def _help(self):
 		table = []
 		table.append(["add", "Add player to the team"])
 		table.append(["addrand X", "Add a random player to the team of grade A,B,C"])
@@ -152,60 +145,66 @@ class TeamShell(object):
 		print tabulate(table)
 
 	def run(self):
+		self._refresh()
 		while(True):
-			self.refresh()
 			cmd = _get_input()
 			try:
 				if(cmd[0] == "view"):
-					self.view(cmd[1])
+					self._view(cmd[1])
 				elif(cmd[0] == "add"):
-					self.add()
+					self._add_player()
 				elif(cmd[0] == "addrand"):
-					self.addrand(cmd[1])
+					self._add_random_player(cmd[1])
 				elif(cmd[0] == "rm"):
-					self.team.removePlayer(cmd[1])
+					self._remove_player(cmd[1])
 				elif(cmd[0] == "help"):
-					self.help()
-					self.doRefresh = False
+					self._help()
 				elif(cmd[0] == "back"):
 					break
 				else:
 					print("Invalid command")
-					self.doRefresh = False
-			except IndexError:
+			except(IndexError):
 				print("Error parsing command")
-				self.doRefresh = False
 
-	def print_roster(self):
+	def _print_roster(self):
 		table = []
 		for player in self.team.allPlayers():
 			table.append([player.fullName(), player.offense, player.defense])
 		print self.team.teamName	
 		print tabulate(table,["Name","Offense","Defense"])
 
-	def view(self, playerName):
+	def _view(self, playerName):
 		try:
 			player = self.team.getPlayer(playerName)
 			ps = PlayerShell(player)
 			ps.run()
-		except KeyError:
+			self._refresh()
+		except(KeyError):
 			print("Error parsing player name")
-			self.doRefresh = False
 
-	def add(self):
+	def _add_player(self):
 		first = raw_input("First Name: ")
 		last = raw_input("Last Name: ")
 		off = raw_input("Offense: ")
 		defs = raw_input("Defense: ")
 		self.team.add_player(Player(first,last,off,defs))
+		self._refresh()
 
-	def addrand(self, grade):
+	def _add_random_player(self, grade):
 		if(grade=="A"):
 			self.team.add_player(rostertool.createRandomPlayer(85,99))
 		if(grade=="B"):
 			self.team.add_player(rostertool.createRandomPlayer(75,89))
 		if(grade=="C"):
 			self.team.add_player(rostertool.createRandomPlayer(55,75))
+		self._refresh()
+
+	def _remove_player(self, player_name):
+		try:
+			self.team.removePlayer(player_name)
+			self._refresh()
+		except(KeyError):
+			print("Error parsing player name")
 
 class PlayerShell(object):
 	def __init__(self, player):
