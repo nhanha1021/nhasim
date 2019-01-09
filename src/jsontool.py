@@ -33,7 +33,7 @@ def TeamToJson(team):
 		TEAMNAME_LABEL : team.teamName
 	}
 	roster = []
-	for player in team.allPlayers():
+	for player in team.get_all_players():
 		roster.append(PlayerToJson(player))
 	data[ROSTER_LABEL] = roster
 	return data
@@ -51,7 +51,7 @@ def LeagueToJson(league):
 		LEAGUENAME_LABEL : league.leagueName
 	}
 	teamRoster = []
-	for team in league.allTeams():
+	for team in league.get_all_teams():
 		teamRoster.append(TeamToJson(team))
 	data[TEAMROSTER_LABEL] = teamRoster
 	return data
@@ -61,7 +61,7 @@ def JsonToLeague(data):
 	jsonroster = data[TEAMROSTER_LABEL]
 	for jsonteam in jsonroster:
 		team = JsonToTeam(jsonteam)
-		league.addTeam(team)
+		league.add_team(team)
 	return league
 
 

@@ -14,29 +14,29 @@ class Game(object):
 		self.play(3)
 		while(self.awayScore == self.homeScore):
 			self.play(1)
-		return GameResult(self.awayTeam.teamName, self.awayScore, self.awayEvents, self.homeTeam.teamName, self.homeScore, self.homeEvents)
+		return GameResult(self.awayTeam.get_team_name(), self.awayScore, self.awayEvents, self.homeTeam.get_team_name(), self.homeScore, self.homeEvents)
 
 	def play(self, n):
 		for i in range(n):
-			for player in self.awayTeam.allPlayers():
-				e = self.calcScore(player, self.homeTeam.allPlayers())
+			for player in self.awayTeam.get_all_players():
+				e = self.calcScore(player, self.homeTeam.get_all_players())
 				self.awayEvents.append(e)
 				self.awayScore += e.point
-			for player in self.homeTeam.allPlayers():
-				e = self.calcScore(player, self.awayTeam.allPlayers())
+			for player in self.homeTeam.get_all_players():
+				e = self.calcScore(player, self.awayTeam.get_all_players())
 				self.homeEvents.append(e)
 				self.homeScore += e.point
 
 	def headline(self):
-		return ("{} @ {}".format(self.awayTeam.teamName,self.homeTeam.teamName))
+		return ("{} @ {}".format(self.awayTeam.get_team_name(),self.homeTeam.get_team_name()))
 
-	def calcScore(self, player, defense):
-		d = random.sample(defense, 3)
-		dsum = sum(p.defense for p in d)
+	def calcScore(self, player, team_defense):
+		defense_sample = random.sample(team_defense, 3)
+		dsum = sum(player.get_defense() for player in defense_sample)
 		i = random.randint(0, dsum)
-		if(i<player.offense):
-			return Event(1, player.fullName())
-		return Event(0, player.fullName())
+		if(i<player.get_offense()):
+			return Event(1, player.get_full_name())
+		return Event(0, player.get_full_name())
 
 class GameResult(object):
 

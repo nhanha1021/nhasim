@@ -7,7 +7,7 @@ league_name = sys.argv[1]
 league = rostertool.loadLeague(league_name)
 
 #TODO: Fix schedule 
-season_schedule = schedule.make_schedule(league.allTeams())
+season_schedule = schedule.make_schedule(league.get_all_teams())
 new_schedule = []
 for week in season_schedule:
 	for game in week:
@@ -15,8 +15,8 @@ for week in season_schedule:
 
 #Define the standings
 standings = {}
-for team in league.allTeams():
-	standings[team.teamName] = [0,0]
+for team in league.get_all_teams():
+	standings[team.get_team_name()] = [0,0]
 
 #Play each game
 for game in new_schedule:

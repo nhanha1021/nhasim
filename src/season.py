@@ -21,9 +21,9 @@ def print_upcoming_games(cur_week, week_no,rankings):
 	for game in cur_week:
 		hot = ""
 		if(week_no>3):
-			if((rankings[game.awayTeam.teamName]<6) and (rankings[game.homeTeam.teamName]<6)):
+			if((rankings[game.awayTeam.get_team_name()]<6) and (rankings[game.homeTeam.get_team_name()]<6)):
 				hot = "Big Game!"
-		table.append(["{}_{}".format(game.awayTeam.teamName,rankings[game.awayTeam.teamName]),"{}_{}".format(game.homeTeam.teamName,rankings[game.homeTeam.teamName]),hot])
+		table.append(["{}_{}".format(game.awayTeam.get_team_name(),rankings[game.awayTeam.get_team_name()]),"{}_{}".format(game.homeTeam.get_team_name(),rankings[game.homeTeam.get_team_name()]),hot])
 	print(tabulate(table,["Away","Home",""]))
 
 def play_week(cur_week):
@@ -47,11 +47,11 @@ def update_standings(standings, week_result):
 league = rostertool.loadLeague("USFL")
 game_results = []
 
-schedule = schedule.make_schedule(league.allTeams())
+schedule = schedule.make_schedule(league.get_all_teams())
 
 standings = {}
-for team in league.allTeams():
-	standings[team.teamName] = [0,0]
+for team in league.get_all_teams():
+	standings[team.get_team_name()] = [0,0]
 
 week = 0;
 while(week<len(schedule)):
