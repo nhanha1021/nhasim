@@ -1,13 +1,8 @@
-from models import League
-import schedule, rostertool
+from models import DraftClass
+from rostereditor import DraftShell
+import rostertool
 
 league = rostertool.loadLeague("USFL")
-s = schedule.make_schedule([i for i in range(1,17)])
-
-i = 0
-for w in s:
-	print w
-
-
-
-
+draft_class = DraftClass("Test Class")
+draft_shell = DraftShell(league,draft_class)
+draft_shell.run()
