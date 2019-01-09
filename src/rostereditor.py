@@ -209,50 +209,48 @@ class TeamShell(object):
 class PlayerShell(object):
 	def __init__(self, player):
 		self.player = player
-		self.doRefresh = True
 
-	def refresh(self):
-		if(self.doRefresh):
-			system("clear")
-			self.print_player()
-		self.doRefresh = True
+	def _refresh(self):
+		system("clear")
+		self._print_player()
 
-	def help(self):
+	def _help(self):
 		table = []
 		table.append(["set off X","Set the offense of the current player to X"])
 		table.append(["set def X", "Set the defense of the current player to X"])
 		table.append(["back","Return to the previous screen"])
-		print tabulate(table)
+		print(tabulate(table))
 
 	def run(self):
+		self._refresh()
 		while(True):
-			self.refresh()
 			cmd = _get_input()
 			try:
 				if(cmd[0] == "set"):
-					self.set(cmd[1], cmd[2])
+					self._set(cmd[1], cmd[2])
 				elif(cmd[0] == "help"):
-					self.help()
-					self.doRefresh = False
+					self._help()
 				elif(cmd[0] == "back"):
 					break
 				else:
 					print("Invalid command")
-					self.doRefresh = False
 			except IndexError:
 				print("Error parsing command")
-				self.doRefresh = False
 
-	def print_player(self):
+	def _print_player(self):
 		print(("Name: %s") % (self.player.fullName()))
 		print(("Offense: %d") % (self.player.offense))
 		print(("Defense: %d") % (self.player.defense))
 
-	def set(self, item, value):
+	def _set(self, item, value):
 		if(item == "off"):
 			self.player.offense = int(value)
-		if(item == "def"):
+		elif(item == "def"):
 			self.player.defense = int(value)
+		else:
+			print("Error parsing command")
+			return
+		self._refresh()
 
 class TradeShell(object):
 	def __init__(self, team1, team2):
