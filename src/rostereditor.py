@@ -28,7 +28,7 @@ class MainShell(object):
 
 	def _refresh(self):
 		system("clear")
-		print(self.league.leagueName+"\n")
+		print(self.league.get_league_name()+"\n")
 		self._print_teams()
 
 	def _help(self):
@@ -76,13 +76,13 @@ class MainShell(object):
 
 	def _print_teams(self):
 		table = []
-		for team in self.league.allTeams():
-			table.append([team.teamName, team.avgOff(), team.avgDef()])
+		for team in self.league.get_all_teams():
+			table.append([team.get_team_name(), team.avg_offense(), team.avg_defense()])
 		print tabulate(table,["Teams", "OFF", "DEF"])
 
 	def _view_team(self,teamName):
 		try:
-			team = self.league.getTeam(teamName)
+			team = self.league.get_team(teamName)
 			ts = TeamShell(team)
 			ts.run()
 			self._refresh()
@@ -90,30 +90,30 @@ class MainShell(object):
 			print("Error parsing team name")
 
 	def _add_team(self,teamName):
-		self.league.addTeam(Team(teamName))
+		self.league.add_team(Team(teamName))
 
 	def _remove_team(self,teamName):
 		try:
-			self.league.removeTeam(teamName)
+			self.league.remove_team(teamName)
 			self._refresh()
 		except(KeyError):
 			print("Error parsing team name")
 
-	def _set_name(self, value):
-		self.league.leagueName = value
+	def _set_name(self, name):
+		self.league.set_league_name(name)
 		self._refresh()
 
 	def _save(self):
 		rostertool.writeLeague(self.league)
 
 	def _save_as(self, name):
-		self.league.leagueName = name
+		self.league.set_league_name(name)
 		rostertool.writeLeague(self.league)
 
 	def _make_trade(self, team1Name, team2Name):
 		try:
-			team1 = self.league.getTeam(team1Name)
-			team2 = self.league.getTeam(team2Name)
+			team1 = self.league.get_team(team1Name)
+			team2 = self.league.get_team(team2Name)
 			ts = TradeShell(team1, team2)
 			ts.run()
 			self._refresh()
@@ -121,7 +121,7 @@ class MainShell(object):
 			print("Error parsing team names")
 
 	def _draft(self):
-		draft_name = self.league.leagueName+"Draft Class"
+		draft_name = self.league.get_league_name()+"Draft Class"
 		draft_class = DraftClass(draft_name)
 		draft_shell = DraftShell(self.league, draft_class)
 		draft_shell.run()
@@ -168,14 +168,14 @@ class TeamShell(object):
 
 	def _print_roster(self):
 		table = []
-		for player in self.team.allPlayers():
+		for player in self.team.get_all_players():
 			table.append([player.get_full_name(), player.get_offense(), player.get_defense()])
-		print(self.team.teamName+"\n")	
+		print(self.team.get_team_name()+"\n")	
 		print(tabulate(table,["Name","Offense","Defense"]))
 
 	def _view(self, playerName):
 		try:
-			player = self.team.getPlayer(playerName)
+			player = self.team.get_player(playerName)
 			ps = PlayerShell(player)
 			ps.run()
 			self._refresh()
@@ -192,16 +192,16 @@ class TeamShell(object):
 
 	def _add_random_player(self, grade):
 		if(grade=="A"):
-			self.team.add_player(rostertool.createRandomPlayer(85,99))
+			self.team.add_player(Player.random_player(85,99))
 		if(grade=="B"):
-			self.team.add_player(rostertool.createRandomPlayer(75,89))
+			self.team.add_player(Player.random_player(75,89))
 		if(grade=="C"):
-			self.team.add_player(rostertool.createRandomPlayer(55,75))
+			self.team.add_player(Player.random_player(55,75))
 		self._refresh()
 
 	def _remove_player(self, player_name):
 		try:
-			self.team.removePlayer(player_name)
+			self.team.remove_player(player_name)
 			self._refresh()
 		except(KeyError):
 			print("Error parsing player name")
@@ -286,15 +286,15 @@ class TradeShell(object):
 
 	def _print_rosters(self):
 		table1 = []
-		for player in self.team1.allPlayers():
+		for player in self.team1.get_all_players():
 			table1.append([player.get_full_name(),player.get_offense(),player.get_defense()])
 		table2 = []
-		for player in self.team2.allPlayers():
+		for player in self.team2.get_all_players():
 			table2.append([player.get_full_name(),player.get_offense(),player.get_defense()])
-		print self.team1.teamName
+		print self.team1.get_team_name()
 		print tabulate(table1,["Name","Offense","Defense"])
 		print ""
-		print self.team2.teamName
+		print self.team2.get_team_name()
 		print tabulate(table2,["Name","Offense","Defense"])
 
 	def _trade(self,team1Names, team2Names):
@@ -304,19 +304,19 @@ class TradeShell(object):
 			if((team1Names == "*") != True):
 				names1 = team1Names.split(",")
 				for name in names1:
-					players1.append(self.team1.getPlayer(name))
+					players1.append(self.team1.get_player(name))
 			if((team2Names == "*") != True):
 				names2 = team2Names.split(",")
 				for name in names2:
-					players2.append(self.team2.getPlayer(name))
+					players2.append(self.team2.get_player(name))
 		except KeyError:
 			print("Error parsing player names")
 			return
 		for player in players1:
-			self.team1.removePlayer(player.get_full_name())
+			self.team1.remove_player(player.get_full_name())
 			self.team2.add_player(player)
 		for player in players2:
-			self.team2.removePlayer(player.get_full_name())
+			self.team2.remove_player(player.get_full_name())
 			self.team1.add_player(player)
 		self._refresh()
 
@@ -339,7 +339,7 @@ class DraftShell(object):
 
 	def run(self):
 		system("clear")
-		print("Welcome to the {} Draft!".format(self.league.leagueName))
+		print("Welcome to the {} Draft!".format(self.league.get_league_name()))
 		while(True):
 			cmd = _get_input()
 			try:
@@ -374,7 +374,7 @@ class DraftShell(object):
 
 	def _draft_player(self, number, team_name):
 		try:
-			drafting_team_name = self.league.getTeam(team_name).teamName
+			drafting_team_name = self.league.get_team(team_name).get_team_name()
 		except(KeyError):
 			print("Error parsing team name")
 		try:
@@ -385,7 +385,7 @@ class DraftShell(object):
 
 	def _finish_draft(self):
 		for member, team_name in self.draft_class.get_draft_results():
-			self.league.getTeam(team_name).add_player(member)
+			self.league.get_team(team_name).add_player(member)
 			
 main = _initialize()
 main.run()

@@ -39,7 +39,7 @@ class MainShell(object):
 
 	def refresh(self):
 		system("clear")
-		print("League: %s\n" % self.league.leagueName)
+		print("League: %s\n" % self.league.get_league_name())
 		self.printTeams()
 
 	def help(self):
@@ -71,14 +71,14 @@ class MainShell(object):
 
 	def printTeams(self):
 		table = []
-		for team in self.league.allTeams():
-			table.append([team.teamName, team.avgOff(), team.avgDef()])
+		for team in self.league.get_all_teams():
+			table.append([team.get_team_name(), team.avg_offense(), team.avg_defense()])
 		print tabulate(table,["Teams", "OFF", "DEF"])
 
 	def play(self,atname, htname):
 		try:
-			at = self.league.getTeam(atname)
-			ht = self.league.getTeam(htname)
+			at = self.league.get_team(atname)
+			ht = self.league.get_team(htname)
 		except KeyError:
 			print("Error parsing team names")
 			self.doRefresh = False
@@ -94,8 +94,8 @@ class MainShell(object):
 
 	def series(self, atname, htname, n):
 		try:
-			at = self.league.getTeam(atname)
-			ht = self.league.getTeam(htname)
+			at = self.league.get_team(atname)
+			ht = self.league.get_team(htname)
 		except KeyError:
 			print("Error parsing team names")
 			self.doRefresh = False
@@ -110,11 +110,11 @@ class MainShell(object):
 		aw = 0
 		hw = 0
 		for gr in gr_table:
-			if(gr.winner() == at.teamName):
+			if(gr.winner() == at.get_team_name()):
 				aw += 1
 			else:
 				hw += 1
-		print("\n%s: %d %s: %d")%(at.teamName, aw, ht.teamName, hw)
+		print("\n%s: %d %s: %d")%(at.get_team_name(), aw, ht.get_team_name(), hw)
 		ae = []
 		he = []
 		for gr in gr_table:

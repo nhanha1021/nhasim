@@ -21,7 +21,7 @@ def loadPlayer(playerName):
 
 def writeTeam(team):
 	data = jsontool.TeamToJson(team)
-	filename = formatName(team.teamName)
+	filename = formatName(team.get_team_name())
 	with open(TEAM_DATA_PATH+filename,'w') as datafile:
 		json.dump(data, datafile)
 
@@ -45,10 +45,3 @@ def loadLeague(leagueName):
 
 def formatName(name):
 	return name.replace(" ","")+".json"
-
-def createRandomPlayer(low, high):
-	firstName = randomname.getFirstName()
-	lastName = randomname.getLastName()
-	offense = random.randint(low, high)
-	defense = random.randint(low, high)
-	return Player(firstName, lastName, offense, defense)

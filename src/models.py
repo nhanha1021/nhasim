@@ -40,29 +40,32 @@ class Team(object):
 		self.teamName = teamName
 		self.roster = {}
 
-	def getPlayer(self, playerName):
+	def get_team_name(self):
+		return self.teamName
+
+	def get_player(self, playerName):
 		return self.roster[_to_key(playerName)]
 
 	def add_player(self, player):
 		self.roster[_to_key(player.get_full_name())] = player
 
-	def removePlayer(self, playerName):
+	def remove_player(self, playerName):
 		del self.roster[_to_key(playerName)]
 
-	def allPlayers(self):
+	def get_all_players(self):
 		return self.roster.values()
 
-	def avgOff(self):
+	def avg_offense(self):
 		try:
-			s = sum(p.offense for p in self.allPlayers())
-			return s/len(self.allPlayers())
+			s = sum(p.offense for p in self.get_all_players())
+			return s/len(self.get_all_players())
 		except(ZeroDivisionError):
 			return 0
 
-	def avgDef(self):
+	def avg_defense(self):
 		try:
-			s = sum(p.defense for p in self.allPlayers())
-			return s/len(self.allPlayers())
+			s = sum(p.defense for p in self.get_all_players())
+			return s/len(self.get_all_players())
 		except(ZeroDivisionError):
 			return 0
 
@@ -72,16 +75,22 @@ class League(object):
 		self.leagueName = leagueName
 		self.teamRoster = {}
 
-	def getTeam(self,teamName):
+	def get_league_name(self):
+		return self.leagueName
+
+	def set_league_name(self,value):
+		self.leagueName = value
+
+	def get_team(self,teamName):
 		return self.teamRoster[_to_key(teamName)]
 
-	def addTeam(self, team):
+	def add_team(self, team):
 		self.teamRoster[_to_key(team.teamName)] = team
 
-	def removeTeam(self, teamName):
+	def remove_team(self, teamName):
 		del self.teamRoster[_to_key(teamName)]
 
-	def allTeams(self):
+	def get_all_teams(self):
 		return self.teamRoster.values()
 
 class DraftClass(object):
