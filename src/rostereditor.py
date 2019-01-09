@@ -116,7 +116,7 @@ class MainShell(object):
 			team2 = self.league.getTeam(team2Name)
 			ts = TradeShell(team1, team2)
 			ts.run()
-			self.refresh()
+			self._refresh()
 		except(KeyError):
 			print("Error parsing team names")
 
@@ -125,7 +125,7 @@ class MainShell(object):
 		draft_class = DraftClass(draft_name)
 		draft_shell = DraftShell(self.league, draft_class)
 		draft_shell.run()
-		self.refresh()
+		self._refresh()
 
 class TeamShell(object):
 	def __init__(self, team):
@@ -258,38 +258,33 @@ class TradeShell(object):
 		self.team2 = team2
 		self.doRefresh = True
 
-	def refresh(self):
-		if(self.doRefresh):
-			system("clear")
-			self.print_rosters()
-		self.doRefresh = True
+	def _refresh(self):
+		system("clear")
+		self._print_rosters()
 
-	def help(self):
+	def _help(self):
 		table = []
-		table.append(["trade X Y","Trade Player X from Team 1 to Team 2 \nand Player Y from Team 2 to Team 1 \nType '*' in place of a blank player \nType ',' to separate multiple players"])
+		table.append(["trade X Y","Trade Player X from Team 1 to Team 2 \nand Player Y from Team 2 to Team 1. \nType '*' in place of a blank player \nType ',' to separate multiple players"])
 		table.append(["back","Return to the previous screen"])
 		print tabulate(table)
 
 	def run(self):
+		self._refresh()
 		while(True):
-			self.refresh()
 			cmd = _get_input()
 			try:
 				if(cmd[0] == "trade"):
-					self.trade(cmd[1],cmd[2])
+					self._trade(cmd[1],cmd[2])
 				elif(cmd[0] == "help"):
-					self.help()
-					self.doRefresh = False	
+					self._help()
 				elif(cmd[0] == "back"):
 					break
 				else:
 					print("Invalid command")
-					self.doRefresh = False
 			except IndexError:
 				print("Error parsing command")
-				self.doRefresh = False
 
-	def print_rosters(self):
+	def _print_rosters(self):
 		table1 = []
 		for player in self.team1.allPlayers():
 			table1.append([player.fullName(),player.offense,player.defense])
@@ -302,7 +297,7 @@ class TradeShell(object):
 		print self.team2.teamName
 		print tabulate(table2,["Name","Offense","Defense"])
 
-	def trade(self,team1Names, team2Names):
+	def _trade(self,team1Names, team2Names):
 		try:
 			players1 = []
 			players2 = []
@@ -316,7 +311,6 @@ class TradeShell(object):
 					players2.append(self.team2.getPlayer(name))
 		except KeyError:
 			print("Error parsing player names")
-			self.doRefresh = False
 			return
 		for player in players1:
 			self.team1.removePlayer(player.fullName())
@@ -324,6 +318,7 @@ class TradeShell(object):
 		for player in players2:
 			self.team2.removePlayer(player.fullName())
 			self.team1.add_player(player)
+		self._refresh()
 
 class DraftShell(object):
 	def __init__(self, league, draft_class):
@@ -356,7 +351,6 @@ class DraftShell(object):
 					self._print_candidates()
 				elif(cmd[0] == "draft"):
 					self._draft_player(int(cmd[1]),cmd[2])
-					self._refresh()
 				elif(cmd[0] == "finish"):
 					self._finish_draft()
 					break
@@ -384,6 +378,7 @@ class DraftShell(object):
 			print("Error parsing team name")
 		try:
 			player = self.draft_class.draft_candidate(number, drafting_team_name)
+			self._refresh()
 		except(KeyError):
 			print("Error parsing draft number")
 
