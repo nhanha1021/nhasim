@@ -170,8 +170,8 @@ class TeamShell(object):
 		table = []
 		for player in self.team.allPlayers():
 			table.append([player.fullName(), player.offense, player.defense])
-		print self.team.teamName	
-		print tabulate(table,["Name","Offense","Defense"])
+		print(self.team.teamName+"\n")	
+		print(tabulate(table,["Name","Offense","Defense"]))
 
 	def _view(self, playerName):
 		try:
@@ -238,7 +238,7 @@ class PlayerShell(object):
 				print("Error parsing command")
 
 	def _print_player(self):
-		print(("Name: %s") % (self.player.fullName()))
+		print(self.player.fullName()+"\n")
 		print(("Offense: %d") % (self.player.offense))
 		print(("Defense: %d") % (self.player.defense))
 
@@ -365,6 +365,7 @@ class DraftShell(object):
 		for member, team_name in self.draft_class.get_draft_results():
 			results.append([count,member.fullName(),team_name])
 			count += 1
+		print("Draft Results\n")
 		print(tabulate(results,["Pick","Player","Drafted By"]))
 
 	def _print_candidates(self):
