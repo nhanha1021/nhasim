@@ -9,7 +9,7 @@ LEAGUE_DATA_PATH = "/Users/johnshea/Repos/nhasim_python/data/"
 
 def writePlayer(player):
 	data = jsontool.PlayerToJson(player)
-	filename = formatName(player.fullName())
+	filename = formatName(player.get_full_name())
 	with open(PLAYER_DATA_PATH+filename,'w') as datafile:
 		json.dump(data, datafile)
 

@@ -11,8 +11,20 @@ class Player(object):
 		self.offense = int(offense)
 		self.defense = int(defense)
 
-	def fullName(self):
+	def get_full_name(self):
 		return ("%s %s") % (self.firstName, self.lastName)
+
+	def get_offense(self):
+		return self.offense
+
+	def set_offense(self, value):
+		self.offense = value
+
+	def get_defense(self):
+		return self.defense
+
+	def set_defense(self,value):
+		self.defense = value
 
 	@classmethod
 	def random_player(cls,low,high):
@@ -32,7 +44,7 @@ class Team(object):
 		return self.roster[_to_key(playerName)]
 
 	def add_player(self, player):
-		self.roster[_to_key(player.fullName())] = player
+		self.roster[_to_key(player.get_full_name())] = player
 
 	def removePlayer(self, playerName):
 		del self.roster[_to_key(playerName)]
@@ -106,7 +118,7 @@ class DraftClass(object):
 	def get_candidates_info(self):
 		info = []
 		for number, candidate in self.candidates.items():
-			info.append([number, candidate.fullName(), candidate.offense, candidate.defense]) 
+			info.append([number, candidate.get_full_name(), candidate.offense, candidate.defense]) 
 		return info
 
 	def draft_candidate(self, number, team_name):

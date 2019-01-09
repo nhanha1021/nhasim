@@ -169,7 +169,7 @@ class TeamShell(object):
 	def _print_roster(self):
 		table = []
 		for player in self.team.allPlayers():
-			table.append([player.fullName(), player.offense, player.defense])
+			table.append([player.get_full_name(), player.get_offense(), player.get_defense()])
 		print(self.team.teamName+"\n")	
 		print(tabulate(table,["Name","Offense","Defense"]))
 
@@ -216,8 +216,8 @@ class PlayerShell(object):
 
 	def _help(self):
 		table = []
-		table.append(["set off X","Set the offense of the current player to X"])
-		table.append(["set def X", "Set the defense of the current player to X"])
+		table.append(["set off X","Set the get_offense() of the current player to X"])
+		table.append(["set def X", "Set the get_defense() of the current player to X"])
 		table.append(["back","Return to the previous screen"])
 		print(tabulate(table))
 
@@ -238,15 +238,15 @@ class PlayerShell(object):
 				print("Error parsing command")
 
 	def _print_player(self):
-		print(self.player.fullName()+"\n")
-		print(("Offense: %d") % (self.player.offense))
-		print(("Defense: %d") % (self.player.defense))
+		print(self.player.get_full_name()+"\n")
+		print(("Offense: %d") % (self.player.get_offense()))
+		print(("Defense: %d") % (self.player.get_defense()))
 
 	def _set(self, item, value):
 		if(item == "off"):
-			self.player.offense = int(value)
+			self.player.set_offense(int(value))
 		elif(item == "def"):
-			self.player.defense = int(value)
+			self.player.set_defense(int(value))
 		else:
 			print("Error parsing command")
 			return
@@ -287,10 +287,10 @@ class TradeShell(object):
 	def _print_rosters(self):
 		table1 = []
 		for player in self.team1.allPlayers():
-			table1.append([player.fullName(),player.offense,player.defense])
+			table1.append([player.get_full_name(),player.get_offense(),player.get_defense()])
 		table2 = []
 		for player in self.team2.allPlayers():
-			table2.append([player.fullName(),player.offense,player.defense])
+			table2.append([player.get_full_name(),player.get_offense(),player.get_defense()])
 		print self.team1.teamName
 		print tabulate(table1,["Name","Offense","Defense"])
 		print ""
@@ -313,10 +313,10 @@ class TradeShell(object):
 			print("Error parsing player names")
 			return
 		for player in players1:
-			self.team1.removePlayer(player.fullName())
+			self.team1.removePlayer(player.get_full_name())
 			self.team2.add_player(player)
 		for player in players2:
-			self.team2.removePlayer(player.fullName())
+			self.team2.removePlayer(player.get_full_name())
 			self.team1.add_player(player)
 		self._refresh()
 
@@ -363,7 +363,7 @@ class DraftShell(object):
 		results = []
 		count = 1
 		for member, team_name in self.draft_class.get_draft_results():
-			results.append([count,member.fullName(),team_name])
+			results.append([count,member.get_full_name(),team_name])
 			count += 1
 		print("Draft Results\n")
 		print(tabulate(results,["Pick","Player","Drafted By"]))
