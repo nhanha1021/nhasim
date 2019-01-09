@@ -27,7 +27,7 @@ def get_last_name():
 		f=int(exp(x/12.5))
 	return lastNames[f]
 
-def getFullName():
+def get_full_name():
 	name = get_first_name()()+" "+get_last_name()
 	return name
 
