@@ -12,7 +12,7 @@ ROSTER_LABEL = "roster"
 LEAGUENAME_LABEL = "leagueName"
 TEAMROSTER_LABEL = "teamRoster"
 
-def PlayerToJson(player):
+def _player_to_json(player):
 	data = {
 		FIRSTNAME_LABEL : player.firstName,
 		LASTNAME_LABEL : player.lastName,
@@ -21,46 +21,46 @@ def PlayerToJson(player):
 	}
 	return data
 
-def JsonToPlayer(data):
+def _json_to_player(data):
 	firstName = data[FIRSTNAME_LABEL]
 	lastName = data[LASTNAME_LABEL]
 	offense = data[OFFENSE_LABEL]
 	defense = data[DEFENSE_LABEL]
 	return Player(firstName,lastName, offense, defense)
 
-def TeamToJson(team):
+def _team_to_json(team):
 	data = {
 		TEAMNAME_LABEL : team.teamName
 	}
 	roster = []
 	for player in team.get_all_players():
-		roster.append(PlayerToJson(player))
+		roster.append(_player_to_json(player))
 	data[ROSTER_LABEL] = roster
 	return data
 
-def JsonToTeam(data):
+def _json_to_team(data):
 	team = Team(data[TEAMNAME_LABEL])
 	jsonroster = data[ROSTER_LABEL]
 	for jsonplayer in jsonroster:
-		player = JsonToPlayer(jsonplayer)
+		player = _json_to_player(jsonplayer)
 		team.add_player(player)
 	return team
 	
-def LeagueToJson(league):
+def league_to_json(league):
 	data = {
 		LEAGUENAME_LABEL : league.leagueName
 	}
 	teamRoster = []
 	for team in league.get_all_teams():
-		teamRoster.append(TeamToJson(team))
+		teamRoster.append(_team_to_json(team))
 	data[TEAMROSTER_LABEL] = teamRoster
 	return data
 
-def JsonToLeague(data):
+def json_to_league(data):
 	league = League(data[LEAGUENAME_LABEL])
 	jsonroster = data[TEAMROSTER_LABEL]
 	for jsonteam in jsonroster:
-		team = JsonToTeam(jsonteam)
+		team = _json_to_team(jsonteam)
 		league.add_team(team)
 	return league
 
