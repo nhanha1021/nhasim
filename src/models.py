@@ -28,8 +28,8 @@ class Player(object):
 
 	@classmethod
 	def random_player(cls,low,high):
-		firstName = randomname.getFirstName()
-		lastName = randomname.getLastName()
+		firstName = randomname.get_first_name()()
+		lastName = randomname.get_last_name()
 		offense = random.randint(low, high)
 		defense = random.randint(low, high)
 		return cls(firstName, lastName, offense, defense)
