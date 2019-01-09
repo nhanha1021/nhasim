@@ -19,7 +19,7 @@ def _initialize():
 	if(len(sys.argv) == 1):
 		league = League("")
 	else:
-		league = rostertool.loadLeague(sys.argv[1])
+		league = rostertool.load_league(sys.argv[1])
 	return MainShell(league)
 
 class MainShell(object):
@@ -104,11 +104,11 @@ class MainShell(object):
 		self._refresh()
 
 	def _save(self):
-		rostertool.writeLeague(self.league)
+		rostertool.write_league(self.league)
 
 	def _save_as(self, name):
 		self.league.set_league_name(name)
-		rostertool.writeLeague(self.league)
+		rostertool.write_league(self.league)
 
 	def _make_trade(self, team1Name, team2Name):
 		try:

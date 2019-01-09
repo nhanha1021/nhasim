@@ -1,70 +1,53 @@
 import random
 
-class Game(object):
+def play_game(away_team, home_team):
 
-	def __init__(self, awayTeam, homeTeam):
-		self.awayTeam = awayTeam
-		self.homeTeam = homeTeam
-		self.awayScore = 0
-		self.homeScore = 0
-		self.awayEvents = []
-		self.homeEvents = []
+	def play(away_team, home_team):
 
-	def play_game(self):
-		self.play(3)
-		while(self.awayScore == self.homeScore):
-			self.play(1)
-		return GameResult(self.awayTeam.get_team_name(), self.awayScore, self.awayEvents, self.homeTeam.get_team_name(), self.homeScore, self.homeEvents)
+		away_events = []
+		home_events = []
 
-	def play(self, n):
-		for i in range(n):
-			for player in self.awayTeam.get_all_players():
-				e = self.calcScore(player, self.homeTeam.get_all_players())
-				self.awayEvents.append(e)
-				self.awayScore += e.point
-			for player in self.homeTeam.get_all_players():
-				e = self.calcScore(player, self.awayTeam.get_all_players())
-				self.homeEvents.append(e)
-				self.homeScore += e.point
+		def calc_event(player, team_defense):
+			d_sample = random.sample(team_defense, 3)
+			d_sum = sum(player.get_defense() for player in d_sample)
+			i = random.randint(0,d_sum)
+			if(i < player.get_offense()):
+				return (1, player.get_full_name())
+			return (0, player.get_full_name())
 
-	def headline(self):
-		return ("{} @ {}".format(self.awayTeam.get_team_name(),self.homeTeam.get_team_name()))
+		for player in away_team.get_all_players():
+			point, name = calc_event(player, home_team.get_all_players())
+			away_events.append([point, name])
+		for player in home_team.get_all_players():
+			point, name = calc_event(player, away_team.get_all_players())
+			home_events.append([point, name])
 
-	def calcScore(self, player, team_defense):
-		defense_sample = random.sample(team_defense, 3)
-		dsum = sum(player.get_defense() for player in defense_sample)
-		i = random.randint(0, dsum)
-		if(i<player.get_offense()):
-			return Event(1, player.get_full_name())
-		return Event(0, player.get_full_name())
+		return (away_events, home_events)
 
-class GameResult(object):
+	def calc_points(events):
+		points = 0
+		for event in events:
+			points += event[0]
+		return points
 
-	def __init__(self, atname, atscore, atevents, htname, htscore, htevents):
-		self.atname = atname
-		self.atscore = atscore
-		self.atevents = atevents
-		self.htname = htname
-		self.htscore = htscore
-		self.htevents = htevents
+	away_score = 0
+	home_score = 0
+	away_events = []
+	home_events = []
 
-	def winner(self):
-		if(self.atscore > self.htscore):
-			return self.atname
-		else:
-			return self.htname
+	for i in range(3):
+		outcome = play(away_team, home_team)
+		away_events += outcome[0]
+		home_events += outcome[1]
+		away_score += calc_points(away_events)
+		home_score += calc_points(home_events)
+	while(away_score == home_score):
+		play(away_team, home_team)
+		away_events += outcome[0]
+		home_events += outcome[1]
+		away_score += calc_points(away_events)
+		home_score += calc_points(home_events)		
 
-	def loser(self):
-		if(self.atscore > self.htscore):
-			return self.htname
-		else:
-			return self.atname
+	print("{}:{} {}:{}".format(away_team.get_team_name(), away_score, home_team.get_team_name(), home_score))
 
-	def results(self):
-		return ("{}: {} - {}: {}".format(self.atname,self.atscore,self.htname,self.htscore))
-
-class Event(object):
-	def __init__(self, point, playername):
-		self.point = point
-		self.playername = playername
 
