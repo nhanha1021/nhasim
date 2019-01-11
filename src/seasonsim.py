@@ -1,4 +1,4 @@
-import game, rostertool
+import game, rostertool, sys, schedule
 from os import system
 from tabulate import tabulate
 from models import Season
@@ -13,6 +13,17 @@ def _get_input():
 		cmd[i] = cmd[i].rstrip().lstrip()
 		cmd[i] = cmd[i].replace("_", " ")
 	return cmd
+
+def _initialize():
+	try:
+		system("clear")
+		season = rostertool.load_season(sys.argv[1])
+		return SeasonShell(season)
+	except(IOError):
+		league = rostertool.load_league(sys.argv[1])
+		season_schedule = schedule.make_schedule(league.get_all_teams())
+		season = Season(league, season_schedule, 0)
+		return SeasonShell(season)
 
 class SeasonShell(object):
 
@@ -53,6 +64,9 @@ class SeasonShell(object):
 					self._advance_week(1)
 			elif(cmd[0] == "remweek"):
 				print(self.season.get_remaining_weeks())
+			elif(cmd[0] == "save"):
+				rostertool.write_season(self.season)
+				print("Saved season to disk.")
 			elif(cmd[0] == "help"):
 				self._help()
 			elif(cmd[0] == "quit"):
@@ -68,6 +82,5 @@ class SeasonShell(object):
 			self.season.advance_week()
 		self._refresh()
 
-
-
-
+shell = _initialize()
+shell.run()
