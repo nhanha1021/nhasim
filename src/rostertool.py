@@ -3,21 +3,20 @@ import json
 
 LEAGUE_DATA_PATH = "/Users/johnshea/Repos/nhasim_python/data/"
 
-def _to_file_name(name):
-	return name.replace(" ","")+".json"
+def _to_league_file_name(name):
+	return name.replace(" ","")+"_league.json"
 
 def _to_season_file_name(name):
 	return name.replace(" ","")+"_season.json"
 
-
 def write_league(league):
 	data = _league_to_json(league)
-	filename = _to_file_name(league.get_league_name())
+	filename = _to_league_file_name(league.get_league_name())
 	with open(LEAGUE_DATA_PATH+filename,'w') as datafile:
 		json.dump(data, datafile)
 
 def load_league(leagueName):
-	filename = _to_file_name(leagueName)
+	filename = _to_league_file_name(leagueName)
 	with open(LEAGUE_DATA_PATH+filename,'r') as datafile:
 		data = json.load(datafile)
 		return _json_to_league(data)
