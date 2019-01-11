@@ -1,7 +1,5 @@
 import json
-from models import Player
-from models import Team
-from models import League
+from models import Player, Team, League, Season
 
 FIRSTNAME_LABEL = "firstName"
 LASTNAME_LABEL = "lastName"
@@ -11,6 +9,10 @@ TEAMNAME_LABEL = "teamName"
 ROSTER_LABEL = "roster"
 LEAGUENAME_LABEL = "leagueName"
 TEAMROSTER_LABEL = "teamRoster"
+SEASON_LEAGUENAME_LABEL = "leagueName"
+SEASON_SCHEDULE_LABEL = "schedule"
+SEASON_WEEK_LABEL = "week"
+SEASON_STANDINGS_LABEL = "standings"
 
 def _player_to_json(player):
 	data = {
@@ -63,5 +65,14 @@ def json_to_league(data):
 		team = _json_to_team(jsonteam)
 		league.add_team(team)
 	return league
+
+def season_to_json(season):
+	data = {
+		SEASON_LEAGUENAME_LABEL : season.league.leagueName,
+		SEASON_WEEK_LABEL : season.week,
+		SEASON_SCHEDULE_LABEL : season.schedule,
+		SEASON_STANDINGS_LABEL : season.standings
+	}
+	return data
 
 
