@@ -1,13 +1,10 @@
-import game, rostertool, newschedule
+from seasonsim import Season, SeasonShell
+import rostertool,schedule
 
 league = rostertool.load_league("USFL")
-schedule = newschedule.make_schedule(league.get_all_teams())
+schedule = schedule.make_schedule(league.get_all_teams())
+season = Season(league, schedule, 0)
+shell = SeasonShell(season)
+shell.run()
 
-count = 0
-for week in schedule:
-	for game in week:
-		print(game)
-		count+=1
-
-print count
 
