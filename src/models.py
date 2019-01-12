@@ -30,30 +30,30 @@ class Player(object):
 	def random_player(cls,low,high):
 		firstName = randomname.get_first_name()()
 		lastName = randomname.get_last_name()
-		offense = random.randint(low, high)
-		defense = random.randint(low, high)
+		offense = random.cur_roundandint(low, high)
+		defense = random.cur_roundandint(low, high)
 		return cls(firstName, lastName, offense, defense)
 
 class Team(object):
 
 	def __init__(self, teamName):
 		self.teamName = teamName
-		self.roster = {}
+		self.cur_roundoster = {}
 
 	def get_team_name(self):
 		return self.teamName
 
 	def get_player(self, playerName):
-		return self.roster[_to_key(playerName)]
+		return self.cur_roundoster[_to_key(playerName)]
 
 	def add_player(self, player):
-		self.roster[_to_key(player.get_full_name())] = player
+		self.cur_roundoster[_to_key(player.get_full_name())] = player
 
 	def remove_player(self, playerName):
-		del self.roster[_to_key(playerName)]
+		del self.cur_roundoster[_to_key(playerName)]
 
 	def get_all_players(self):
-		return self.roster.values()
+		return self.cur_roundoster.values()
 
 	def avg_offense(self):
 		try:
@@ -107,18 +107,18 @@ class DraftClass(object):
 		candidates = {}
 		count = 0
 		# Top-level talent
-		for i in range(random.randint(1,10)):
-			candidate = Player.random_player(80,99)
+		for i in range(random.cur_roundandint(1,10)):
+			candidate = Player.cur_roundandom_player(80,99)
 			candidates[count] = candidate
 			count += 1
 		# Mid-level talent
-		for i in range(random.randint(20,50)):
-			candidate = Player.random_player(65,85)
+		for i in range(random.cur_roundandint(20,50)):
+			candidate = Player.cur_roundandom_player(65,85)
 			candidates[count] = candidate
 			count += 1
 		# Low-level talent
-		for i in range(random.randint(30,60)):
-			candidate = Player.random_player(50,75)
+		for i in range(random.cur_roundandint(30,60)):
+			candidate = Player.cur_roundandom_player(50,75)
 			candidates[count] = candidate
 			count += 1
 
@@ -174,6 +174,51 @@ class Season(object):
 			self.standings[result.get_winner().get_team_name()][0] += 1
 			self.standings[result.get_loser().get_team_name()][1] += 1
 		self.week += 1
+
+class Postseason(object):
+
+	def __init__(self, teams):
+		self.bracket = [teams]
+		self.cur_round = 0
+		self.results = []
+
+	def get_results(self):
+		return self.results
+
+	def get_cur_round_bracket(self):
+		return self.bracket[self.cur_round]
+
+	def get_champion(self):
+		if(self.is_complete):
+			return self.get_cur_round_bracket()[0]
+		return None
+
+	def is_complete(self):
+		if (len(self.bracket[self.cur_round]) == 1):
+			return True
+		return False
+
+	def advance_round(self):
+		next_bracket = []
+		round_results = []
+		cur_bracket = self.bracket[self.cur_round]
+		start = 0
+		end = len(cur_bracket)-1
+		while(start<end):
+			result = game.play_game(cur_bracket[start], cur_bracket[end])
+			round_results.append(result)
+			next_bracket.append(result.get_winner())
+			start += 1
+			end -= 1
+		self.bracket.append(next_bracket)
+		self.results.append(round_results)
+		self.cur_round += 1
+
+
+
+
+
+
 
 
 

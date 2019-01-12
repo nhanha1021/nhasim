@@ -1,11 +1,11 @@
-from seasonsim import SeasonShell
-import rostertool,schedule
-from models import Season
+import rostertool, game
+from models import *
+from seasonsim import PostseasonShell
 
-season = rostertool.load_season("USFL")
-shell = SeasonShell(season)
+league = rostertool.load_league("USFL")
+teams = league.get_all_teams()[:8]
+postseason = Postseason(teams)
+
+shell = PostseasonShell(postseason)
 shell.run()
-rostertool.write_season(season)
-print("Wrote season!")
-
 

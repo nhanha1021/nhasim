@@ -37,32 +37,37 @@ class SeasonShell(object):
 			for team_name,record in standings.items():
 				table.append([team_name, record[0], record[1]])
 			table.sort(key=lambda x: x[1],reverse=True)
+			rank = 1
+			for row in table:
+				row.insert(0, rank)
+				rank += 1
 			if(self.season.get_remaining_weeks() > 0):
 				print("Week {}\n".format(self.season.get_week()+1))
 			else:
 				print("End of Regular Season\n")
-			print(tabulate(table,["Team","W","L"]))
+			print(tabulate(table,["Rank","Team","W","L"]))
 		
 		system("clear")
 		print_standings(self.season.get_standings())
 
 	def _help(self):
 		table = []
-		table.append(["advweek X","Advance X weeks ahead"])
-		table.append(["remweek","Get the number of weeks left"])
+		table.append(["adv X","Advance X weeks ahead"])
+		table.append(["rem","Get the number of weeks left"])
 		table.append(["quit","Quit the program"])
+		table.append(["save","Save the season"])
 		print(tabulate(table))
 
 	def run(self):
 		self._refresh()
 		while(True):
 			cmd = _get_input()
-			if(cmd[0] == "advweek"):
+			if(cmd[0] == "adv"):
 				if(len(cmd) > 1):
 					self._advance_week(int(cmd[1]))
 				else:
 					self._advance_week(1)
-			elif(cmd[0] == "remweek"):
+			elif(cmd[0] == "rem"):
 				print(self.season.get_remaining_weeks())
 			elif(cmd[0] == "save"):
 				rostertool.write_season(self.season)
@@ -82,5 +87,53 @@ class SeasonShell(object):
 			self.season.advance_week()
 		self._refresh()
 
-shell = _initialize()
-shell.run()
+class PostseasonShell(object):
+	def __init__(self, postseason):
+		self.postseason = postseason
+
+	def _refresh(self):
+		def _print_bracket():
+			rnd_count = 1
+			for rnd in self.postseason.get_results():
+				print("Round {}".format(rnd_count))
+				rnd_count += 1
+				for result in rnd:
+					print result.get_results()
+				print("")
+
+			if(self.postseason.is_complete()):
+				print("Champion: {}".format(self.postseason.get_champion().get_team_name()))
+				return
+
+			print("Round {}".format(rnd_count))
+			cur_round_bracket = self.postseason.get_cur_round_bracket()
+			start = 0
+			end = len(cur_round_bracket)-1
+			while(start<end):
+				print("{} vs {}".format(cur_round_bracket[start].get_team_name(),cur_round_bracket[end].get_team_name()))
+				start += 1
+				end -= 1
+		
+		system("clear")
+		_print_bracket()
+
+	def run(self):
+		self._refresh()
+		while(True):
+			cmd = _get_input()
+			if(cmd[0] == "adv"):
+				self._advance_round()
+			elif(cmd[0] == "quit"):
+				break
+			else:
+				print("Invalid command")
+
+	def _advance_round(self):
+		if(self.postseason.is_complete()):
+			print("Postseason is complete.")
+			return
+		self.postseason.advance_round() 
+		self._refresh()
+
+#shell = _initialize()
+#shell.run()
