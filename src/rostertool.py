@@ -112,5 +112,5 @@ def _json_to_season(data):
 	schedule = data[SEASON_SCHEDULE_LABEL]
 	week = data[SEASON_WEEK_LABEL]
 	season = Season(league, schedule, week)
-	season.set_standings(data[SEASON_STANDINGS_LABEL])
+	season.standings = data[SEASON_STANDINGS_LABEL]
 	return season

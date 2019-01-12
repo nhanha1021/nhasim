@@ -72,6 +72,18 @@ class GameResult(object):
 		else:
 			return self.home_team
 
+	def get_away_team(self):
+		return self.away_team
+
+	def get_home_team(self):
+		return self.home_team
+
+	def get_away_score(self):
+		return self.away_score
+
+	def get_home_score(self):
+		return self.home_score
+
 	def get_results(self):
 		return ("{}: {} - {}: {}".format(self.away_team.get_team_name(), self.away_score, self.home_team.get_team_name(), self.home_score))
 

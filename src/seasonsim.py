@@ -1,7 +1,7 @@
 import game, rostertool, sys, schedule
 from os import system
 from tabulate import tabulate
-from models import Season
+from models import Season, Postseason
 
 def _get_input():
 	inp = raw_input("\n>")
@@ -32,23 +32,16 @@ class SeasonShell(object):
 
 	def _refresh(self):
 
-		def print_standings(standings):
-			table = []
-			for team_name,record in standings.items():
-				table.append([team_name, record[0], record[1]])
-			table.sort(key=lambda x: x[1],reverse=True)
-			rank = 1
-			for row in table:
-				row.insert(0, rank)
-				rank += 1
-			if(self.season.get_remaining_weeks() > 0):
-				print("Week {}\n".format(self.season.get_week()+1))
-			else:
+		def print_standings():
+			table = self.season.get_standings()
+			if(self.season.is_complete()):
 				print("End of Regular Season\n")
+			else:
+				print("Week {}\n".format(self.season.get_week()+1))		
 			print(tabulate(table,["Rank","Team","W","L"]))
 		
 		system("clear")
-		print_standings(self.season.get_standings())
+		print_standings()
 
 	def _help(self):
 		table = []
@@ -72,6 +65,8 @@ class SeasonShell(object):
 			elif(cmd[0] == "save"):
 				rostertool.write_season(self.season)
 				print("Saved season to disk.")
+			elif(cmd[0] == "postseason"):
+				self._begin_postseason()
 			elif(cmd[0] == "help"):
 				self._help()
 			elif(cmd[0] == "quit"):
@@ -87,18 +82,33 @@ class SeasonShell(object):
 			self.season.advance_week()
 		self._refresh()
 
+	def _begin_postseason(self):
+		if not (self.season.is_complete()):
+			print("The season is not over yet")
+			return
+		teams = self.season.get_postseason_teams()
+		postseason = Postseason(teams)
+		shell = PostseasonShell(postseason)
+		shell.run()
+		self._refresh()
+
 class PostseasonShell(object):
 	def __init__(self, postseason):
 		self.postseason = postseason
 
 	def _refresh(self):
+
 		def _print_bracket():
 			rnd_count = 1
 			for rnd in self.postseason.get_results():
 				print("Round {}".format(rnd_count))
 				rnd_count += 1
+				table = []
 				for result in rnd:
-					print result.get_results()
+					away_team = result.get_away_team().get_team_name()
+					home_team = result.get_home_team().get_team_name()
+					table.append(["{}_{}".format(away_team, self.postseason.get_seed(away_team)), result.get_away_score(), "{}_{}".format(home_team, self.postseason.get_seed(home_team)), result.get_home_score()])
+				print(tabulate(table))
 				print("")
 
 			if(self.postseason.is_complete()):
@@ -107,15 +117,20 @@ class PostseasonShell(object):
 
 			print("Round {}".format(rnd_count))
 			cur_round_bracket = self.postseason.get_cur_round_bracket()
-			start = 0
-			end = len(cur_round_bracket)-1
-			while(start<end):
-				print("{} vs {}".format(cur_round_bracket[start].get_team_name(),cur_round_bracket[end].get_team_name()))
-				start += 1
-				end -= 1
+			table = []
+			for matchup in cur_round_bracket:
+				away_team = matchup[0].get_team_name()
+				home_team = matchup[1].get_team_name()
+				table.append(["{}_{}".format(away_team,self.postseason.get_seed(away_team)),"@","{}_{}".format(home_team,self.postseason.get_seed(home_team))])
+			print(tabulate(table))
 		
 		system("clear")
 		_print_bracket()
+
+	def _help(self):
+		table = []
+		table.append(["adv","Advance to the next round"])
+		table.append(["back","Return to the previous screen"])
 
 	def run(self):
 		self._refresh()
@@ -123,7 +138,7 @@ class PostseasonShell(object):
 			cmd = _get_input()
 			if(cmd[0] == "adv"):
 				self._advance_round()
-			elif(cmd[0] == "quit"):
+			elif(cmd[0] == "back"):
 				break
 			else:
 				print("Invalid command")
@@ -135,5 +150,5 @@ class PostseasonShell(object):
 		self.postseason.advance_round() 
 		self._refresh()
 
-#shell = _initialize()
-#shell.run()
+shell = _initialize()
+shell.run()

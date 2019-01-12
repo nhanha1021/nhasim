@@ -145,8 +145,13 @@ class Season(object):
 		self.schedule = schedule
 		self.week = week
 		self.finished_games = []
-		self.standings = {}
-		self._init_standings()
+		self.standings = self._init_standings()
+
+	def _init_standings(self):
+		standings = {}
+		for team in self.league.get_all_teams():
+			standings[team.get_team_name()] = [0,0]
+		return standings
 
 	def get_week(self):
 		return self.week
@@ -154,15 +159,26 @@ class Season(object):
 	def get_remaining_weeks(self):
 		return (len(self.schedule) - self.week)
 
-	def _init_standings(self):
-		for team in self.league.get_all_teams():
-			self.standings[team.get_team_name()] = [0,0]
+	def is_complete(self):
+		if(self.get_remaining_weeks() <= 0):
+			return True
+		return False
 
 	def get_standings(self):
-		return self.standings
+		table = []
+		for team_name,record in self.standings.items():
+			table.append([team_name, record[0], record[1]])
+		table.sort(key=lambda x: x[1],reverse=True)
+		rank = 1
+		for row in table:
+			row.insert(0, rank)
+			rank += 1
+		return table
 
-	def set_standings(self,value):
-		self.standings = value
+	def get_postseason_teams(self):
+		top_eight = self.get_standings()[:8]
+		teams = [self.league.get_team(x[1]) for x in top_eight]
+		return teams
 
 	def advance_week(self):
 		if(self.get_remaining_weeks() <= 0):
@@ -178,9 +194,33 @@ class Season(object):
 class Postseason(object):
 
 	def __init__(self, teams):
-		self.bracket = [teams]
-		self.cur_round = 0
+		self.seeds = self._init_seeds(teams)
+		self.bracket = [self._filter_bracket(teams)]
 		self.results = []
+		self.cur_round = 0
+		self.complete = False
+
+	def _init_seeds(self,teams):
+		seeds = {}
+		seed = 1
+		for team in teams:
+			seeds[team.get_team_name()] = seed
+			seed += 1
+		return seeds
+
+	def _filter_bracket(self, bracket):
+		filt_bracket = []
+		bracket.sort(key=lambda x: self.seeds[x.get_team_name()], reverse=False)
+		start = 0
+		end = len(bracket)-1
+		while(start<end):
+			filt_bracket.append((bracket[end],bracket[start]))
+			start += 1
+			end -= 1
+		return filt_bracket
+
+	def get_seed(self, team_name):
+		return self.seeds[team_name]
 
 	def get_results(self):
 		return self.results
@@ -190,28 +230,25 @@ class Postseason(object):
 
 	def get_champion(self):
 		if(self.is_complete):
-			return self.get_cur_round_bracket()[0]
+			return self.results[self.cur_round][0].get_winner()
 		return None
 
 	def is_complete(self):
-		if (len(self.bracket[self.cur_round]) == 1):
-			return True
-		return False
+		return self.complete
 
 	def advance_round(self):
 		next_bracket = []
 		round_results = []
 		cur_bracket = self.bracket[self.cur_round]
-		start = 0
-		end = len(cur_bracket)-1
-		while(start<end):
-			result = game.play_game(cur_bracket[start], cur_bracket[end])
+		for matchup in cur_bracket:
+			result = game.play_game(matchup[0], matchup[1])
 			round_results.append(result)
 			next_bracket.append(result.get_winner())
-			start += 1
-			end -= 1
-		self.bracket.append(next_bracket)
 		self.results.append(round_results)
+		if(len(next_bracket) == 1):
+			self.complete = True
+			return
+		self.bracket.append(self._filter_bracket(next_bracket))
 		self.cur_round += 1
 
 
