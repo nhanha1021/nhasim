@@ -17,7 +17,7 @@ def _get_input():
 def _initialize():
 	system("clear")
 	if(len(sys.argv) == 1):
-		league = League("")
+		league = League("Untitled League")
 	else:
 		league = rostertool.load_league(sys.argv[1])
 	return MainShell(league)
@@ -91,6 +91,7 @@ class MainShell(object):
 
 	def _add_team(self,teamName):
 		self.league.add_team(Team(teamName))
+		self._refresh()
 
 	def _remove_team(self,teamName):
 		try:

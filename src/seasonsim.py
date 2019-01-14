@@ -25,6 +25,9 @@ def _initialize():
 		season = Season(league, season_schedule, 0)
 		return SeasonShell(season)
 
+def _team_with_rank(team_name,rank):
+		return ("{}_{}".format(team_name,rank))	
+
 class SeasonShell(object):
 
 	def __init__(self, season):
@@ -47,8 +50,11 @@ class SeasonShell(object):
 		table = []
 		table.append(["adv X","Advance X weeks ahead"])
 		table.append(["rem","Get the number of weeks left"])
+		table.append(["matches","View the week's matches"])
+		table.append(["results", "View last week's match results"])
 		table.append(["quit","Quit the program"])
 		table.append(["save","Save the season"])
+		table.append(["postseason","Begin the postseason"])
 		print(tabulate(table))
 
 	def run(self):
@@ -65,14 +71,47 @@ class SeasonShell(object):
 			elif(cmd[0] == "save"):
 				rostertool.write_season(self.season)
 				print("Saved season to disk.")
+			elif(cmd[0] == "matches"):
+				self._print_upcoming_games()
 			elif(cmd[0] == "postseason"):
 				self._begin_postseason()
+			elif(cmd[0] == "results"):
+				self._print_last_week_results()
 			elif(cmd[0] == "help"):
 				self._help()
 			elif(cmd[0] == "quit"):
 				break
 			else:
 				print("Invalid command")
+
+	def _print_upcoming_games(self):
+		if(self.season.get_remaining_weeks() == 0):
+			print("There are no more games to be played.")
+			return
+		rankings = self.season.get_rankings()
+		table = []
+		for match in self.season.get_week_matches():
+			at = _team_with_rank(match[0], rankings[match[0]])
+			ht = _team_with_rank(match[1], rankings[match[1]])
+			table.append([at,"@",ht])
+		print(tabulate(table))
+
+	def _print_last_week_results(self):
+		if(self.season.get_week() == 0):
+			print("There have not been any games played yet.")
+			return
+		rankings = self.season.get_rankings()
+		table = []
+		for result in self.season.get_last_week_results():
+			at = result.get_away_team().get_team_name()
+			at = _team_with_rank(at, rankings[at])
+			ht = result.get_home_team().get_team_name()
+			ht  = _team_with_rank(ht, rankings[ht])
+			asc = result.get_away_score()
+			hsc = result.get_home_score()
+			table.append([at,asc,ht,hsc])
+		print(tabulate(table))
+
 
 	def _advance_week(self, amount):
 		if(amount > self.season.get_remaining_weeks()):
@@ -92,6 +131,7 @@ class SeasonShell(object):
 		shell.run()
 		self._refresh()
 
+
 class PostseasonShell(object):
 	def __init__(self, postseason):
 		self.postseason = postseason
@@ -99,15 +139,22 @@ class PostseasonShell(object):
 	def _refresh(self):
 
 		def _print_bracket():
+
+			seeds = self.postseason.get_seeds()
 			rnd_count = 1
+
 			for rnd in self.postseason.get_results():
 				print("Round {}".format(rnd_count))
 				rnd_count += 1
 				table = []
 				for result in rnd:
-					away_team = result.get_away_team().get_team_name()
-					home_team = result.get_home_team().get_team_name()
-					table.append(["{}_{}".format(away_team, self.postseason.get_seed(away_team)), result.get_away_score(), "{}_{}".format(home_team, self.postseason.get_seed(home_team)), result.get_home_score()])
+					at = result.get_away_team().get_team_name()
+					atr = _team_with_rank(at, seeds[at])
+					ht = result.get_home_team().get_team_name()
+					htr = _team_with_rank(ht, seeds[ht])
+					asc = result.get_away_score()
+					hsc = result.get_home_score()
+					table.append([atr,asc,htr,hsc])
 				print(tabulate(table))
 				print("")
 
@@ -119,9 +166,11 @@ class PostseasonShell(object):
 			cur_round_bracket = self.postseason.get_cur_round_bracket()
 			table = []
 			for matchup in cur_round_bracket:
-				away_team = matchup[0].get_team_name()
-				home_team = matchup[1].get_team_name()
-				table.append(["{}_{}".format(away_team,self.postseason.get_seed(away_team)),"@","{}_{}".format(home_team,self.postseason.get_seed(home_team))])
+				at = matchup[0].get_team_name()
+				at = _team_with_rank(at, seeds[at])
+				ht = matchup[1].get_team_name()
+				ht = _team_with_rank(ht, seeds[ht])
+				table.append([at,"@",ht])
 			print(tabulate(table))
 		
 		system("clear")

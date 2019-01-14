@@ -144,7 +144,7 @@ class Season(object):
 		self.league = league
 		self.schedule = schedule
 		self.week = week
-		self.finished_games = []
+		self.results = []
 		self.standings = self._init_standings()
 
 	def _init_standings(self):
@@ -164,6 +164,21 @@ class Season(object):
 			return True
 		return False
 
+	def get_week_matches(self):
+		return self.schedule[self.week]
+
+	def get_last_week_results(self):
+		return self.results[self.week-1]
+
+	def get_rankings(self):
+		ranking = {}
+		rank = 1
+		for row in self.get_standings():
+			team_name = row[1]
+			ranking[team_name] = rank
+			rank += 1
+		return ranking
+
 	def get_standings(self):
 		table = []
 		for team_name,record in self.standings.items():
@@ -181,32 +196,27 @@ class Season(object):
 		return teams
 
 	def advance_week(self):
-		if(self.get_remaining_weeks() <= 0):
-			return
+		week_results = []
 		for match in self.schedule[self.week]:
 			away_team = self.league.get_team(match[0])
 			home_team = self.league.get_team(match[1])
 			result = game.play_game(away_team, home_team)
 			self.standings[result.get_winner().get_team_name()][0] += 1
 			self.standings[result.get_loser().get_team_name()][1] += 1
+			week_results.append(result)
+		self.results.append(week_results)
 		self.week += 1
 
 class Postseason(object):
 
 	def __init__(self, teams):
-		self.seeds = self._init_seeds(teams)
+		self.seeds = {}
+		for i in range(len(teams)):
+			self.seeds[teams[i].get_team_name()] = i+1
 		self.bracket = [self._filter_bracket(teams)]
 		self.results = []
 		self.cur_round = 0
 		self.complete = False
-
-	def _init_seeds(self,teams):
-		seeds = {}
-		seed = 1
-		for team in teams:
-			seeds[team.get_team_name()] = seed
-			seed += 1
-		return seeds
 
 	def _filter_bracket(self, bracket):
 		filt_bracket = []
@@ -219,8 +229,8 @@ class Postseason(object):
 			end -= 1
 		return filt_bracket
 
-	def get_seed(self, team_name):
-		return self.seeds[team_name]
+	def get_seeds(self):
+		return self.seeds
 
 	def get_results(self):
 		return self.results
