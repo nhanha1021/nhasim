@@ -1,11 +1,8 @@
 import rostertool, game
 from models import *
-from seasonsim import PostseasonShell
 
 league = rostertool.load_league("USFL")
-teams = league.get_all_teams()[:8]
-postseason = Postseason(teams)
-
-shell = PostseasonShell(postseason)
-shell.run()
+game_results = rostertool.load_grs()
+for game_result in game_results:
+	print game_result.get_winner().get_team_name()
 

@@ -26,7 +26,8 @@ def _initialize():
 		return SeasonShell(season)
 
 def _team_with_rank(team_name,rank):
-		return ("{}_{}".format(team_name,rank))	
+	
+	return ("{}_{}".format(team_name,rank))	
 
 class SeasonShell(object):
 
@@ -50,11 +51,11 @@ class SeasonShell(object):
 		table = []
 		table.append(["adv X","Advance X weeks ahead"])
 		table.append(["rem","Get the number of weeks left"])
-		table.append(["matches","View the week's matches"])
-		table.append(["results", "View last week's match results"])
+		table.append(["up","View the week's upcoming games"])
+		table.append(["res", "View last week's game results"])
 		table.append(["quit","Quit the program"])
 		table.append(["save","Save the season"])
-		table.append(["postseason","Begin the postseason"])
+		table.append(["ps","Begin the postseason"])
 		print(tabulate(table))
 
 	def run(self):
@@ -71,11 +72,11 @@ class SeasonShell(object):
 			elif(cmd[0] == "save"):
 				rostertool.write_season(self.season)
 				print("Saved season to disk.")
-			elif(cmd[0] == "matches"):
+			elif(cmd[0] == "up"):
 				self._print_upcoming_games()
-			elif(cmd[0] == "postseason"):
+			elif(cmd[0] == "ps"):
 				self._begin_postseason()
-			elif(cmd[0] == "results"):
+			elif(cmd[0] == "res"):
 				self._print_last_week_results()
 			elif(cmd[0] == "help"):
 				self._help()
@@ -85,6 +86,12 @@ class SeasonShell(object):
 				print("Invalid command")
 
 	def _print_upcoming_games(self):
+
+		def _is_big_game(at_rank, ht_rank):
+			if((at_rank+ht_rank<9) and (abs(at_rank-ht_rank)<5)):
+				return True
+			return False
+
 		if(self.season.get_remaining_weeks() == 0):
 			print("There are no more games to be played.")
 			return
@@ -93,7 +100,10 @@ class SeasonShell(object):
 		for match in self.season.get_week_matches():
 			at = _team_with_rank(match[0], rankings[match[0]])
 			ht = _team_with_rank(match[1], rankings[match[1]])
-			table.append([at,"@",ht])
+			if(_is_big_game(rankings[match[0]],rankings[match[1]])):
+				table.append([at,"@",ht,"!!!"])
+			else:
+				table.append([at,"@",ht])
 		print(tabulate(table))
 
 	def _print_last_week_results(self):
@@ -104,9 +114,7 @@ class SeasonShell(object):
 		table = []
 		for result in self.season.get_last_week_results():
 			at = result.get_away_team().get_team_name()
-			at = _team_with_rank(at, rankings[at])
 			ht = result.get_home_team().get_team_name()
-			ht  = _team_with_rank(ht, rankings[ht])
 			asc = result.get_away_score()
 			hsc = result.get_home_score()
 			table.append([at,asc,ht,hsc])
@@ -187,6 +195,8 @@ class PostseasonShell(object):
 			cmd = _get_input()
 			if(cmd[0] == "adv"):
 				self._advance_round()
+			elif(cmd[0] == "help"):
+				self._help()
 			elif(cmd[0] == "back"):
 				break
 			else:

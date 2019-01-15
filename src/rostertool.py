@@ -1,4 +1,5 @@
 from models import Player, Team, League, Season
+from game import GameResult
 import json
 
 LEAGUE_DATA_PATH = "/Users/johnshea/Repos/nhasim_python/data/"
@@ -45,6 +46,13 @@ SEASON_LEAGUENAME_LABEL = "leagueName"
 SEASON_SCHEDULE_LABEL = "schedule"
 SEASON_WEEK_LABEL = "week"
 SEASON_STANDINGS_LABEL = "standings"
+SEASON_RESULTS_LABEL = "results"
+GR_AWAY_TEAM = "away_team"
+GR_HOME_TEAM = "home_team"
+GR_AWAY_SCORE = "away_score"
+GR_HOME_SCORE = "home_score"
+GR_AWAY_EVENTS = "away_events"
+GR_HOME_EVENTS = "home_events"
 
 def _player_to_json(player):
 	data = {
@@ -103,8 +111,14 @@ def _season_to_json(season):
 		SEASON_LEAGUENAME_LABEL : season.league.leagueName,
 		SEASON_WEEK_LABEL : season.week,
 		SEASON_SCHEDULE_LABEL : season.schedule,
-		SEASON_STANDINGS_LABEL : season.standings
+		SEASON_STANDINGS_LABEL : season.standings,
+		SEASON_RESULTS_LABEL : []
 	}
+	for week in season.results:
+		week_results = []
+		for result in week:
+			week_results.append(_game_result_to_json(result))
+		data[SEASON_RESULTS_LABEL].append(week_results)	
 	return data
 
 def _json_to_season(data):
@@ -113,4 +127,33 @@ def _json_to_season(data):
 	week = data[SEASON_WEEK_LABEL]
 	season = Season(league, schedule, week)
 	season.standings = data[SEASON_STANDINGS_LABEL]
+	results = []
+	for jsonweek in data[SEASON_RESULTS_LABEL]:
+		week_results = []
+		for jsonresult in jsonweek:
+			week_results.append(_json_to_game_result(jsonresult))
+		results.append(week_results)
+	season.results = results
 	return season
+
+def _game_result_to_json(game_result):
+	data = {
+		GR_AWAY_TEAM : _team_to_json(game_result.away_team),
+		GR_AWAY_SCORE : game_result.away_score,
+		GR_AWAY_EVENTS : game_result.away_events,
+		GR_HOME_TEAM : _team_to_json(game_result.home_team),
+		GR_HOME_SCORE : game_result.home_score,
+		GR_HOME_EVENTS : game_result.home_events
+	}
+	return data
+
+def _json_to_game_result(data):
+	away_team = _json_to_team(data[GR_AWAY_TEAM])
+	away_score = data[GR_AWAY_SCORE]
+	away_events = data[GR_AWAY_EVENTS]
+	home_team = _json_to_team(data[GR_HOME_TEAM])
+	home_score = data[GR_HOME_SCORE]
+	home_events = data[GR_HOME_EVENTS]
+	return GameResult(away_team, away_score, away_events, home_team, home_score, home_events)
+
+

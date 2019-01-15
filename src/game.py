@@ -16,11 +16,11 @@ def play_game(away_team, home_team):
 		home_events = []
 
 		for player in away_team.get_all_players():
-			point, name = calc_event(player, home_team.get_all_players())
-			away_events.append([point, name])
+			event = calc_event(player, home_team.get_all_players())
+			away_events.append(event)
 		for player in home_team.get_all_players():
-			point, name = calc_event(player, away_team.get_all_players())
-			home_events.append([point, name])
+			event = calc_event(player, away_team.get_all_players())
+			home_events.append(event)
 
 		return (away_events, home_events)
 
