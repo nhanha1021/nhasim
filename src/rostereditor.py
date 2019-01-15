@@ -1,4 +1,4 @@
-import sys, rostertool
+import sys, datatool
 from models import *
 from tabulate import tabulate
 from os import system
@@ -19,7 +19,7 @@ def _initialize():
 	if(len(sys.argv) == 1):
 		league = League("Untitled League")
 	else:
-		league = rostertool.load_league(sys.argv[1])
+		league = datatool.load_league(sys.argv[1])
 	return MainShell(league)
 
 class MainShell(object):
@@ -105,11 +105,11 @@ class MainShell(object):
 		self._refresh()
 
 	def _save(self):
-		rostertool.write_league(self.league)
+		datatool.write_league(self.league)
 
 	def _save_as(self, name):
 		self.league.set_league_name(name)
-		rostertool.write_league(self.league)
+		datatool.write_league(self.league)
 
 	def _make_trade(self, team1Name, team2Name):
 		try:

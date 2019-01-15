@@ -1,4 +1,4 @@
-import game, rostertool, sys, schedule
+import game, datatool, sys, schedule
 from os import system
 from tabulate import tabulate
 from models import Season, Postseason
@@ -17,10 +17,10 @@ def _get_input():
 def _initialize():
 	try:
 		system("clear")
-		season = rostertool.load_season(sys.argv[1])
+		season = datatool.load_season(sys.argv[1])
 		return SeasonShell(season)
 	except(IOError):
-		league = rostertool.load_league(sys.argv[1])
+		league = datatool.load_league(sys.argv[1])
 		season_schedule = schedule.make_schedule(league.get_all_teams())
 		season = Season(league, season_schedule, 0)
 		return SeasonShell(season)
@@ -70,7 +70,7 @@ class SeasonShell(object):
 			elif(cmd[0] == "rem"):
 				print(self.season.get_remaining_weeks())
 			elif(cmd[0] == "save"):
-				rostertool.write_season(self.season)
+				datatool.write_season(self.season)
 				print("Saved season to disk.")
 			elif(cmd[0] == "up"):
 				self._print_upcoming_games()
