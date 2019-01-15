@@ -174,6 +174,9 @@ class Season(object):
 	def get_last_week_results(self):
 		return self.results[self.week-1]
 
+	def get_week_results(self, week):
+		return self.results[week]
+
 	def get_rankings(self):
 		ranking = {}
 		rank = 1

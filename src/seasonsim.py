@@ -52,10 +52,11 @@ class SeasonShell(object):
 		table.append(["adv X","Advance X weeks ahead"])
 		table.append(["rem","Get the number of weeks left"])
 		table.append(["up","View the week's upcoming games"])
-		table.append(["res", "View last week's game results"])
-		table.append(["quit","Quit the program"])
+		table.append(["res X", "View the results of week X"])
 		table.append(["save","Save the season"])
-		table.append(["ps","Begin the postseason"])
+		table.append(["ps","Load the postseason"])
+		table.append(["clear","Clear the previous commands"])
+		table.append(["quit","Quit the program"])
 		print(tabulate(table))
 
 	def run(self):
@@ -77,9 +78,14 @@ class SeasonShell(object):
 			elif(cmd[0] == "ps"):
 				self._begin_postseason()
 			elif(cmd[0] == "res"):
-				self._print_last_week_results()
+				if(len(cmd) > 1):
+					self._print_week_results(int(cmd[1])-1)
+				else:
+					self._print_week_results(self.season.get_week()-1)
 			elif(cmd[0] == "help"):
 				self._help()
+			elif(cmd[0] == "clear"):
+				self._refresh()
 			elif(cmd[0] == "quit"):
 				break
 			else:
@@ -106,20 +112,19 @@ class SeasonShell(object):
 				table.append([at,"@",ht])
 		print(tabulate(table))
 
-	def _print_last_week_results(self):
-		if(self.season.get_week() == 0):
-			print("There have not been any games played yet.")
+	def _print_week_results(self, week):
+		if(week >= self.season.get_week()) or (week<0):
+			print("Please enter a valid week.")
 			return
-		rankings = self.season.get_rankings()
 		table = []
-		for result in self.season.get_last_week_results():
-			at = result.get_away_team().get_team_name()
-			ht = result.get_home_team().get_team_name()
+		for result in self.season.get_week_results(week):
+			at = result.get_away_team()
+			ht = result.get_home_team()
 			asc = result.get_away_score()
 			hsc = result.get_home_score()
 			table.append([at,asc,ht,hsc])
+		print("Week {} Results\n".format(week+1))
 		print(tabulate(table))
-
 
 	def _advance_week(self, amount):
 		if(amount > self.season.get_remaining_weeks()):

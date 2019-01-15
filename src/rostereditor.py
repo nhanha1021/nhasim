@@ -106,10 +106,12 @@ class MainShell(object):
 
 	def _save(self):
 		datatool.write_league(self.league)
+		print("Saved league to disk.")
 
 	def _save_as(self, name):
 		self.league.set_league_name(name)
 		datatool.write_league(self.league)
+		print("Saved league to disk.")
 
 	def _make_trade(self, team1Name, team2Name):
 		try:
