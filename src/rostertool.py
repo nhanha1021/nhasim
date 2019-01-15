@@ -1,4 +1,4 @@
-from models import Player, Team, League, Season
+from models import Player, Team, League, Season, Postseason
 from game import GameResult
 import json
 
@@ -47,6 +47,13 @@ SEASON_SCHEDULE_LABEL = "schedule"
 SEASON_WEEK_LABEL = "week"
 SEASON_STANDINGS_LABEL = "standings"
 SEASON_RESULTS_LABEL = "results"
+SEASON_POSTSEASON_LABEL = "postseason"
+PS_LEAGUE_LABEL = "league_name"
+PS_SEEDS_LABEL = "seeds"
+PS_BRACKET_LABEL = "bracket"
+PS_RESULTS_LABEL = "results"
+PS_CUR_ROUND_LABEL = "cur_round"
+PS_COMPLETE_LABEL = "complete"
 GR_AWAY_TEAM = "away_team"
 GR_HOME_TEAM = "home_team"
 GR_AWAY_SCORE = "away_score"
@@ -112,8 +119,11 @@ def _season_to_json(season):
 		SEASON_WEEK_LABEL : season.week,
 		SEASON_SCHEDULE_LABEL : season.schedule,
 		SEASON_STANDINGS_LABEL : season.standings,
-		SEASON_RESULTS_LABEL : []
+		SEASON_RESULTS_LABEL : [],
+		SEASON_POSTSEASON_LABEL : None
 	}
+	if(season.postseason != None):
+		data[SEASON_POSTSEASON_LABEL] = _postseason_to_json(season.postseason)
 	for week in season.results:
 		week_results = []
 		for result in week:
@@ -134,26 +144,66 @@ def _json_to_season(data):
 			week_results.append(_json_to_game_result(jsonresult))
 		results.append(week_results)
 	season.results = results
+	postseason = None
+	if(data[SEASON_POSTSEASON_LABEL] != None):
+		postseason = _json_to_postseason(data[SEASON_POSTSEASON_LABEL])
+	season.postseason = postseason
 	return season
+
+def _postseason_to_json(postseason):
+	data = {
+		PS_LEAGUE_LABEL : postseason.league.leagueName,
+		PS_SEEDS_LABEL : postseason.seeds,
+		PS_BRACKET_LABEL : postseason.bracket,
+		PS_RESULTS_LABEL : [],
+		PS_CUR_ROUND_LABEL : postseason.cur_round,
+		PS_COMPLETE_LABEL : postseason.complete
+	}
+	for rnd in postseason.results:
+		rnd_results = []
+		for result in rnd:
+			rnd_results.append(_game_result_to_json(result))
+		data[PS_RESULTS_LABEL].append(rnd_results)
+	return data
+
+def _json_to_postseason(data):
+	league = load_league(data[PS_LEAGUE_LABEL])
+	seeds = data[PS_SEEDS_LABEL]
+	bracket = data[PS_BRACKET_LABEL]
+	cur_round = data[PS_CUR_ROUND_LABEL]
+	complete = data[PS_COMPLETE_LABEL]
+	results = []
+	for jsonrnd in data[PS_RESULTS_LABEL]:
+		rnd_results = []
+		for jsonresult in jsonrnd:
+			rnd_results.append(_json_to_game_result(jsonresult))
+		results.append(rnd_results)
+	postseason = Postseason([], league)
+	postseason.seeds = seeds
+	postseason.bracket = bracket
+	postseason.results = results
+	postseason.cur_round = cur_round
+	postseason.complete = complete
+	return postseason
 
 def _game_result_to_json(game_result):
 	data = {
-		GR_AWAY_TEAM : _team_to_json(game_result.away_team),
+		GR_AWAY_TEAM : game_result.away_team_name,
 		GR_AWAY_SCORE : game_result.away_score,
 		GR_AWAY_EVENTS : game_result.away_events,
-		GR_HOME_TEAM : _team_to_json(game_result.home_team),
+		GR_HOME_TEAM : game_result.home_team_name,
 		GR_HOME_SCORE : game_result.home_score,
 		GR_HOME_EVENTS : game_result.home_events
 	}
 	return data
 
 def _json_to_game_result(data):
-	away_team = _json_to_team(data[GR_AWAY_TEAM])
+	away_team_name = data[GR_AWAY_TEAM]
 	away_score = data[GR_AWAY_SCORE]
 	away_events = data[GR_AWAY_EVENTS]
-	home_team = _json_to_team(data[GR_HOME_TEAM])
+	home_team_name = data[GR_HOME_TEAM]
 	home_score = data[GR_HOME_SCORE]
 	home_events = data[GR_HOME_EVENTS]
-	return GameResult(away_team, away_score, away_events, home_team, home_score, home_events)
+	return GameResult(away_team_name, away_score, away_events, home_team_name, home_score, home_events)
 
 

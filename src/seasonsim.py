@@ -133,12 +133,13 @@ class SeasonShell(object):
 		if not (self.season.is_complete()):
 			print("The season is not over yet")
 			return
-		teams = self.season.get_postseason_teams()
-		postseason = Postseason(teams)
-		shell = PostseasonShell(postseason)
-		shell.run()
+		if(self.season.get_postseason() == None):
+			team_names = self.season.get_postseason_teams()
+			self.season.set_postseason(Postseason(team_names, self.season.get_league()))
+		shell = PostseasonShell(self.season.get_postseason())
+		postseason = shell.run()
+		self.season.set_postseason(postseason)
 		self._refresh()
-
 
 class PostseasonShell(object):
 	def __init__(self, postseason):
@@ -156,9 +157,9 @@ class PostseasonShell(object):
 				rnd_count += 1
 				table = []
 				for result in rnd:
-					at = result.get_away_team().get_team_name()
+					at = result.get_away_team()
 					atr = _team_with_rank(at, seeds[at])
-					ht = result.get_home_team().get_team_name()
+					ht = result.get_home_team()
 					htr = _team_with_rank(ht, seeds[ht])
 					asc = result.get_away_score()
 					hsc = result.get_home_score()
@@ -167,16 +168,16 @@ class PostseasonShell(object):
 				print("")
 
 			if(self.postseason.is_complete()):
-				print("Champion: {}".format(self.postseason.get_champion().get_team_name()))
+				print("Champion: {}".format(self.postseason.get_champion()))
 				return
 
 			print("Round {}".format(rnd_count))
 			cur_round_bracket = self.postseason.get_cur_round_bracket()
 			table = []
 			for matchup in cur_round_bracket:
-				at = matchup[0].get_team_name()
+				at = matchup[0]
 				at = _team_with_rank(at, seeds[at])
-				ht = matchup[1].get_team_name()
+				ht = matchup[1]
 				ht = _team_with_rank(ht, seeds[ht])
 				table.append([at,"@",ht])
 			print(tabulate(table))
@@ -198,7 +199,7 @@ class PostseasonShell(object):
 			elif(cmd[0] == "help"):
 				self._help()
 			elif(cmd[0] == "back"):
-				break
+				return self.postseason
 			else:
 				print("Invalid command")
 

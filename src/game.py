@@ -48,35 +48,35 @@ def play_game(away_team, home_team):
 		away_score += calc_points(away_events)
 		home_score += calc_points(home_events)		
 
-	return GameResult(away_team, away_score, away_events, home_team, home_score, home_events)
+	return GameResult(away_team.get_team_name(), away_score, away_events, home_team.get_team_name(), home_score, home_events)
 
 class GameResult(object):
 
-	def __init__(self, away_team, away_score, away_events, home_team, home_score, home_events):
-		self.away_team = away_team
+	def __init__(self, away_team_name, away_score, away_events, home_team_name, home_score, home_events):
+		self.away_team_name = away_team_name
 		self.away_score = away_score
 		self.away_events = away_events
-		self.home_team = home_team
+		self.home_team_name = home_team_name
 		self.home_score = home_score
 		self.home_events = home_events
 
 	def get_winner(self):
 		if(self.away_score > self.home_score):
-			return self.away_team
+			return self.away_team_name
 		else:
-			return self.home_team
+			return self.home_team_name
 
 	def get_loser(self):
 		if(self.away_score < self.home_score):
-			return self.away_team
+			return self.away_team_name
 		else:
-			return self.home_team
+			return self.home_team_name
 
 	def get_away_team(self):
-		return self.away_team
+		return self.away_team_name
 
 	def get_home_team(self):
-		return self.home_team
+		return self.home_team_name
 
 	def get_away_score(self):
 		return self.away_score
@@ -85,7 +85,7 @@ class GameResult(object):
 		return self.home_score
 
 	def get_results(self):
-		return ("{}: {} - {}: {}".format(self.away_team.get_team_name(), self.away_score, self.home_team.get_team_name(), self.home_score))
+		return ("{}: {} - {}: {}".format(self.away_team_name, self.away_score, self.home_team_name, self.home_score))
 
 
 
