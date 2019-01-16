@@ -20,9 +20,9 @@ def _initialize():
 		league = League("Untitled League")
 	else:
 		league = datatool.load_league(sys.argv[1])
-	return MainShell(league)
+	return LeagueShell(league)
 
-class MainShell(object):
+class LeagueShell(object):
 	def __init__(self, league):
 		self.league = league
 
@@ -65,6 +65,8 @@ class MainShell(object):
 					self._make_trade(cmd[1], cmd[2])
 				elif(cmd[0] == "draft"):
 					self._draft()
+				elif(cmd[0] == "addpicks"):
+					self._add_draft_picks()
 				elif(cmd[0] == "help"):
 					self._help()
 				elif(cmd[0] == "quit"):
@@ -124,11 +126,24 @@ class MainShell(object):
 			print("Error parsing team names")
 
 	def _draft(self):
-		draft_name = self.league.get_league_name()+"Draft Class"
-		draft_class = DraftClass(draft_name)
-		draft_shell = DraftShell(self.league, draft_class)
-		draft_shell.run()
+		if(self.league.draft_class == None):
+			draft_name = self.league.get_league_name()+"Draft Class"
+			self.league.set_draft_class(DraftClass(draft_name))
+		draft_shell = DraftShell(self.league, self.league.get_draft_class())
+		draft_class = draft_shell.run()
+		self.league.set_draft_class(draft_class)
 		self._refresh()
+
+	def _add_draft_picks(self):
+		if not(self.league.get_draft_class().is_finished()):
+			print("Please finish the draft to add picks to the teams.")
+			return
+		if(self.league.is_picks_added()):
+			print("Draft picks have already been added.")
+			return
+		self.league.add_draft_picks()
+		print("Added the draft picks to the teams.")
+
 
 class TeamShell(object):
 	def __init__(self, team):
@@ -341,22 +356,23 @@ class DraftShell(object):
 		self._print_draft_results()
 
 	def run(self):
-		system("clear")
-		print("Welcome to the {} Draft!".format(self.league.get_league_name()))
+		self._refresh()
 		while(True):
 			cmd = _get_input()
 			try:
 				if(cmd[0] == "back"):
-					break
+					return self.draft_class
 				elif(cmd[0] == "help"):
 					self._help()
 				elif(cmd[0] == "cand"):
 					self._print_candidates()
 				elif(cmd[0] == "draft"):
 					self._draft_player(int(cmd[1]),cmd[2])
+				elif(cmd[0] == "edit"):
+					self._edit_pick(int(cmd[1])-1,cmd[2])
 				elif(cmd[0] == "finish"):
 					self._finish_draft()
-					break
+					print("Draft finished.")
 				else:
 					print("Invalid Command")
 			except(IndexError, ValueError):
@@ -373,9 +389,12 @@ class DraftShell(object):
 
 	def _print_candidates(self):
 		table = self.draft_class.get_candidates_info()
-		print("\n"+tabulate(table,["ID","Name","Offense","Defense"]))
+		print("\n"+tabulate(table,["ID","Name","Offense","Defense","Overall"]))
 
 	def _draft_player(self, number, team_name):
+		if(self.draft_class.is_finished()):
+			print("The draft is over.")
+			return
 		try:
 			drafting_team_name = self.league.get_team(team_name).get_team_name()
 		except(KeyError):
@@ -386,12 +405,19 @@ class DraftShell(object):
 		except(KeyError):
 			print("Error parsing draft number")
 
+	def _edit_pick(self, pick, team_name):
+		if(pick > len(self.draft_class.get_draft_results())):
+			print("Please enter a valid pick.")
+			return
+		team_name = self.league.get_team(team_name).get_team_name()
+		self.draft_class.edit_candidate_draft_team(pick,team_name)
+		self._refresh()
+
 	def _finish_draft(self):
-		for member, team_name in self.draft_class.get_draft_results():
-			self.league.get_team(team_name).add_player(member)
+		self.draft_class.set_finished(True)
 			
-main = _initialize()
-main.run()
+shell = _initialize()
+shell.run()
 
 
 

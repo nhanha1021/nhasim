@@ -26,12 +26,15 @@ class Player(object):
 	def set_defense(self,value):
 		self.defense = value
 
+	def get_overall(self):
+		return round((self.offense+self.defense)/2)
+
 	@classmethod
 	def random_player(cls,low,high):
-		firstName = randomname.get_first_name()()
+		firstName = randomname.get_first_name()
 		lastName = randomname.get_last_name()
-		offense = random.cur_roundandint(low, high)
-		defense = random.cur_roundandint(low, high)
+		offense = random.randint(low, high)
+		defense = random.randint(low, high)
 		return cls(firstName, lastName, offense, defense)
 
 class Team(object):
@@ -74,6 +77,8 @@ class League(object):
 	def __init__(self, leagueName):
 		self.leagueName = leagueName
 		self.teamRoster = {}
+		self.draft_class = None
+		self.picks_added = False
 
 	def get_league_name(self):
 		return self.leagueName
@@ -84,6 +89,12 @@ class League(object):
 	def get_team(self,teamName):
 		return self.teamRoster[_to_key(teamName)]
 
+	def get_draft_class(self):
+		return self.draft_class
+
+	def set_draft_class(self, draft_class):
+		self.draft_class = draft_class
+
 	def add_team(self, team):
 		self.teamRoster[_to_key(team.teamName)] = team
 
@@ -93,32 +104,41 @@ class League(object):
 	def get_all_teams(self):
 		return self.teamRoster.values()
 
+	def is_picks_added(self):
+		return self.picks_added
+
+	def add_draft_picks(self):
+		for pick, team_name in self.draft_class.get_draft_results():
+			self.get_team(team_name).add_player(pick)
+		self.picks_added = True
+
 class DraftClass(object):
 
 	def __init__(self, class_name):
 		self.class_name = class_name
-		self.members = []
+		self.results = []
 		self.candidates = self._init_candidates()
+		self.finished = False
 
 	def get_class_name(self):
 		return self.class_name
 
 	def _init_candidates(self):
 		candidates = {}
-		count = 0
+		count = 1
 		# Top-level talent
-		for i in range(random.cur_roundandint(1,10)):
-			candidate = Player.cur_roundandom_player(80,99)
+		for i in range(random.randint(1,10)):
+			candidate = Player.random_player(80,99)
 			candidates[count] = candidate
 			count += 1
 		# Mid-level talent
-		for i in range(random.cur_roundandint(20,50)):
-			candidate = Player.cur_roundandom_player(65,85)
+		for i in range(random.randint(20,50)):
+			candidate = Player.random_player(65,85)
 			candidates[count] = candidate
 			count += 1
 		# Low-level talent
-		for i in range(random.cur_roundandint(30,60)):
-			candidate = Player.cur_roundandom_player(50,75)
+		for i in range(random.randint(30,60)):
+			candidate = Player.random_player(50,75)
 			candidates[count] = candidate
 			count += 1
 
@@ -127,16 +147,26 @@ class DraftClass(object):
 	def get_candidates_info(self):
 		info = []
 		for number, candidate in self.candidates.items():
-			info.append([number, candidate.get_full_name(), candidate.offense, candidate.defense]) 
+			info.append([number, candidate.get_full_name(), candidate.offense, candidate.defense, candidate.get_overall()])
+		info.sort(key=lambda x: x[0], reverse = True) 
 		return info
 
 	def draft_candidate(self, number, team_name):
 		member = self.candidates.pop(number)
-		self.members.append((member,team_name))
+		self.results.append((member,team_name))
 		return member
 
+	def edit_candidate_draft_team(self, pick, team_name):
+		self.results[pick] = (self.results[pick][0],team_name)
+
 	def get_draft_results(self):
-		return self.members
+		return self.results
+
+	def set_finished(self, value):
+		self.finished = value
+
+	def is_finished(self):
+		return self.finished
 
 class Season(object):
 

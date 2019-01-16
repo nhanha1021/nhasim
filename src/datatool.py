@@ -1,4 +1,4 @@
-from models import Player, Team, League, Season, Postseason
+from models import *
 from game import GameResult
 import json
 
@@ -42,6 +42,8 @@ TEAMNAME_LABEL = "teamName"
 ROSTER_LABEL = "roster"
 LEAGUENAME_LABEL = "leagueName"
 TEAMROSTER_LABEL = "teamRoster"
+L_DRAFT_CLASS_LABEL = "draft_class"
+L_PICKS_ADDED_LABEL = "picks_added"
 SEASON_LEAGUENAME_LABEL = "leagueName"
 SEASON_SCHEDULE_LABEL = "schedule"
 SEASON_WEEK_LABEL = "week"
@@ -60,6 +62,10 @@ GR_AWAY_SCORE = "away_score"
 GR_HOME_SCORE = "home_score"
 GR_AWAY_EVENTS = "away_events"
 GR_HOME_EVENTS = "home_events"
+DC_NAME_LABEL = "class_name"
+DC_RESULTS_LABEL = "results"
+DC_CANDIDATES_LABEL = "candidates"
+DC_FINISHED_LABEL = "finished"
 
 def _player_to_json(player):
 	data = {
@@ -97,12 +103,16 @@ def _json_to_team(data):
 	
 def _league_to_json(league):
 	data = {
-		LEAGUENAME_LABEL : league.leagueName
+		LEAGUENAME_LABEL : league.leagueName,
+		L_DRAFT_CLASS_LABEL : None,
+		L_PICKS_ADDED_LABEL : league.picks_added
 	}
 	teamRoster = []
 	for team in league.get_all_teams():
 		teamRoster.append(_team_to_json(team))
 	data[TEAMROSTER_LABEL] = teamRoster
+	if(league.draft_class != None):
+		data[L_DRAFT_CLASS_LABEL] = _draft_class_to_json(league.draft_class)
 	return data
 
 def _json_to_league(data):
@@ -111,6 +121,11 @@ def _json_to_league(data):
 	for jsonteam in jsonroster:
 		team = _json_to_team(jsonteam)
 		league.add_team(team)
+	draft_class = None
+	if(data[L_DRAFT_CLASS_LABEL]!= None):
+		draft_class = _json_to_draft_class(data[L_DRAFT_CLASS_LABEL])
+	league.draft_class = draft_class
+	league.picks_added = data[L_PICKS_ADDED_LABEL]
 	return league
 
 def _season_to_json(season):
@@ -205,5 +220,37 @@ def _json_to_game_result(data):
 	home_score = data[GR_HOME_SCORE]
 	home_events = data[GR_HOME_EVENTS]
 	return GameResult(away_team_name, away_score, away_events, home_team_name, home_score, home_events)
+
+def _draft_class_to_json(draft_class):
+	data = {
+		DC_NAME_LABEL : draft_class.class_name,
+		DC_FINISHED_LABEL : draft_class.finished
+	}
+	jsonresults = []
+	for member,team_name in draft_class.results:
+		jsonresults.append((_player_to_json(member),team_name))
+	data[DC_RESULTS_LABEL] = jsonresults
+	jsoncandidates = {}
+	for count,candidate in draft_class.candidates.items():
+		jsoncandidates[count] = _player_to_json(candidate)
+	data[DC_CANDIDATES_LABEL] = jsoncandidates
+	return data
+		
+
+def _json_to_draft_class(data):
+	class_name = data[DC_NAME_LABEL]
+	draft_class = DraftClass(class_name)
+	finished = data[DC_FINISHED_LABEL]
+	draft_class.finished = finished
+	results = []
+	for jsonmember,team_name in data[DC_RESULTS_LABEL]:
+		results.append((_json_to_player(jsonmember),team_name))
+	draft_class.results = results
+	candidates = {}
+	for count,jsoncandidate in data[DC_CANDIDATES_LABEL].items():
+		candidates[int(count)] = _json_to_player(jsoncandidate)
+	draft_class.candidates = candidates
+	return draft_class
+
 
 
