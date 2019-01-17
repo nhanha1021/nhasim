@@ -227,10 +227,6 @@ class Season(object):
 			rank += 1
 		return table
 
-	def get_postseason_teams(self):
-		top_eight = [x[1] for x in self.get_standings()[:8]]
-		return top_eight
-
 	def set_postseason(self, postseason):
 		if(self.is_complete()):
 			self.postseason = postseason
@@ -252,15 +248,17 @@ class Season(object):
 
 class Postseason(object):
 
-	def __init__(self, team_names, league):
-		self.league = league
+	def __init__(self, teams):
+		self.teams = {}
 		self.seeds = {}
-		for i in range(len(team_names)):
-			self.seeds[team_names[i]] = i+1
-		self.bracket = [self._filter_bracket(team_names)]
 		self.results = []
 		self.cur_round = 0
 		self.complete = False
+		for i in range(len(teams)):
+			self.teams[teams[i].get_team_name()] = teams[i]
+			self.seeds[teams[i].get_team_name()] = i+1
+		self.bracket = [self._filter_bracket([team.get_team_name() for team in teams])]
+		
 
 	def _filter_bracket(self, bracket):
 		filt_bracket = []
@@ -295,8 +293,8 @@ class Postseason(object):
 		round_results = []
 		cur_bracket = self.bracket[self.cur_round]
 		for matchup in cur_bracket:
-			away_team = self.league.get_team(matchup[0])
-			home_team = self.league.get_team(matchup[1])
+			away_team = self.teams[matchup[0]]
+			home_team = self.teams[matchup[1]]
 			result = game.play_game(away_team, home_team)
 			round_results.append(result)
 			next_bracket.append(result.get_winner())

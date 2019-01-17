@@ -139,8 +139,9 @@ class SeasonShell(object):
 			print("The season is not over yet")
 			return
 		if(self.season.get_postseason() == None):
-			team_names = self.season.get_postseason_teams()
-			self.season.set_postseason(Postseason(team_names, self.season.get_league()))
+			team_names = [x[1] for x in self.season.get_standings()[:8]]
+			teams = [self.season.get_league().get_team(team_name) for team_name in team_names]
+			self.season.set_postseason(Postseason(teams))
 		shell = PostseasonShell(self.season.get_postseason())
 		postseason = shell.run()
 		self.season.set_postseason(postseason)
