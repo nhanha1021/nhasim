@@ -15,7 +15,7 @@ def make_schedule(teams):
 			group = []
 			for i in range(len(teams_a)):
 				for j in range(len(teams_a)):
-					group.append((teams_a[j].get_team_name(),teams_h[j].get_team_name()))
+					group.append([teams_a[j].get_team_name(),teams_h[j].get_team_name()])
 				shift(teams_a)
 			teams_a1 = teams_a[:len(teams_a)/2]
 			teams_a2 = teams_a[len(teams_a)/2:]
@@ -87,4 +87,8 @@ def make_schedule(teams):
 	rt = tb+ta
 	schedule = get_matches(t) + get_matches(rt)
 	random.shuffle(schedule)
+	for week in range(len(schedule)):
+		for game in range(len(schedule[week])):
+			schedule[week][game].insert(2,(week,game))
+			schedule[week][game] = tuple(schedule[week][game])
 	return schedule

@@ -24,7 +24,7 @@ def load_league(leagueName):
 
 def write_season(season):
 	data = _season_to_json(season)
-	filename = _to_season_file_name(season.league.get_league_name())
+	filename = _to_season_file_name(season.league.leagueName)
 	with open(LEAGUE_DATA_PATH+filename,'w') as datafile:
 		json.dump(data,datafile)
 
@@ -134,35 +134,47 @@ def _season_to_json(season):
 		SEASON_WEEK_LABEL : season.week,
 		SEASON_SCHEDULE_LABEL : season.schedule,
 		SEASON_STANDINGS_LABEL : season.standings,
-		SEASON_RESULTS_LABEL : [],
 		SEASON_POSTSEASON_LABEL : None
 	}
+	jsonresults = {}
+	for game_number,result in season.results.items():
+		jsonresults[str(game_number)] = _game_result_to_json(result)
+	data[SEASON_RESULTS_LABEL] = jsonresults
 	if(season.postseason != None):
 		data[SEASON_POSTSEASON_LABEL] = _postseason_to_json(season.postseason)
-	for week in season.results:
-		week_results = []
-		for result in week:
-			week_results.append(_game_result_to_json(result))
-		data[SEASON_RESULTS_LABEL].append(week_results)	
 	return data
 
 def _json_to_season(data):
+
+	def _to_tuple(s):
+		s = s.replace("(","").replace(")","")
+		l = s.split(",")
+		return (int(l[0]),int(l[1]))
+
 	league = load_league(data[SEASON_LEAGUENAME_LABEL])
+
 	schedule = data[SEASON_SCHEDULE_LABEL]
+	for week in range(len(schedule)):
+		for game in range(len(schedule[week])):
+			schedule[week][game][2] = tuple(schedule[week][game][2])
+			schedule[week][game] = tuple(schedule[week][game])
+
 	week = data[SEASON_WEEK_LABEL]
+
 	season = Season(league, schedule, week)
+
 	season.standings = data[SEASON_STANDINGS_LABEL]
-	results = []
-	for jsonweek in data[SEASON_RESULTS_LABEL]:
-		week_results = []
-		for jsonresult in jsonweek:
-			week_results.append(_json_to_game_result(jsonresult))
-		results.append(week_results)
+
+	results = {}
+	for game_number,jsonresult in data[SEASON_RESULTS_LABEL].items():
+		results[_to_tuple(game_number)] = _json_to_game_result(jsonresult)
 	season.results = results
+
 	postseason = None
 	if(data[SEASON_POSTSEASON_LABEL] != None):
 		postseason = _json_to_postseason(data[SEASON_POSTSEASON_LABEL])
 	season.postseason = postseason
+
 	return season
 
 def _postseason_to_json(postseason):
@@ -242,7 +254,6 @@ def _draft_class_to_json(draft_class):
 	data[DC_CANDIDATES_LABEL] = jsoncandidates
 	return data
 		
-
 def _json_to_draft_class(data):
 	class_name = data[DC_NAME_LABEL]
 	draft_class = DraftClass(class_name)

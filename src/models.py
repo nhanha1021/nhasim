@@ -174,7 +174,7 @@ class Season(object):
 		self.league = league
 		self.schedule = schedule
 		self.week = week
-		self.results = []
+		self.results = {}
 		self.standings = self._init_standings()
 		self.postseason = None
 
@@ -201,11 +201,17 @@ class Season(object):
 	def get_week_matches(self):
 		return self.schedule[self.week]
 
-	def get_last_week_results(self):
-		return self.results[self.week-1]
-
 	def get_week_results(self, week):
-		return self.results[week]
+		results = []
+		for match in self.schedule[week]:
+			key = match[2]
+			if key in self.results:
+				results.append(self.results[key])
+		return results
+
+	def get_result(self, week, game_number):
+		key = (week, game_number)
+		return self.results[key]
 
 	def get_rankings(self):
 		ranking = {}
@@ -221,10 +227,8 @@ class Season(object):
 		for team_name,record in self.standings.items():
 			table.append([team_name, record[0], record[1]])
 		table.sort(key=lambda x: x[1],reverse=True)
-		rank = 1
-		for row in table:
-			row.insert(0, rank)
-			rank += 1
+		for i in range(len(table)):
+			table[i].insert(0, i+1)
 		return table
 
 	def set_postseason(self, postseason):
@@ -234,16 +238,29 @@ class Season(object):
 	def get_postseason(self):
 		return self.postseason
 
+	def is_game_finished(self, game_number):
+		if (self.week, game_number) in self.results:
+			return True
+		return False
+
+	def _play_game(self, match):
+		key = match[2]
+		if key in self.results:
+			return
+		away_team = self.league.get_team(match[0])
+		home_team = self.league.get_team(match[1])
+		result = game.play_game(away_team, home_team)
+		self.standings[result.get_winner()][0] += 1
+		self.standings[result.get_loser()][1] += 1
+		self.results[key] = result
+
+	def play_specific_game(self, game_number):
+		match = self.schedule[self.week][game_number]
+		self._play_game(match)
+		
 	def advance_week(self):
-		week_results = []
 		for match in self.schedule[self.week]:
-			away_team = self.league.get_team(match[0])
-			home_team = self.league.get_team(match[1])
-			result = game.play_game(away_team, home_team)
-			self.standings[result.get_winner()][0] += 1
-			self.standings[result.get_loser()][1] += 1
-			week_results.append(result)
-		self.results.append(week_results)
+			self._play_game(match)
 		self.week += 1
 
 class Postseason(object):

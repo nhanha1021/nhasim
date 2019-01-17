@@ -50,6 +50,8 @@ class SeasonShell(object):
 	def _help(self):
 		table = []
 		table.append(["adv X","Advance X weeks ahead"])
+		table.append(["play X","Watch game X"])
+		table.append(["play all","Play the remaining games in the week"])
 		table.append(["rem","Get the number of weeks left"])
 		table.append(["up","View the week's upcoming games"])
 		table.append(["res X", "View the results of week X"])
@@ -68,6 +70,11 @@ class SeasonShell(object):
 					self._advance_week(int(cmd[1]))
 				else:
 					self._advance_week(1)
+			elif(cmd[0] == "play"):
+				if(cmd[1] == "all"):
+					self._play_all_games()
+				else:
+					self._play_individual_game(int(cmd[1])-1)
 			elif(cmd[0] == "rem"):
 				print(self.season.get_remaining_weeks())
 			elif(cmd[0] == "save"):
@@ -81,7 +88,7 @@ class SeasonShell(object):
 				if(len(cmd) > 1):
 					self._print_week_results(int(cmd[1])-1)
 				else:
-					self._print_week_results(self.season.get_week()-1)
+					self._print_week_results(self.season.get_week())
 			elif(cmd[0] == "help"):
 				self._help()
 			elif(cmd[0] == "clear"):
@@ -104,17 +111,22 @@ class SeasonShell(object):
 		rankings = self.season.get_rankings()
 		table = []
 		for match in self.season.get_week_matches():
+			game_number = match[2][1]+1
 			at = _team_with_rank(match[0], rankings[match[0]])
 			ht = _team_with_rank(match[1], rankings[match[1]])
+			text = [game_number,at,"@",ht]
 			if(_is_big_game(rankings[match[0]],rankings[match[1]])):
-				table.append([at,"@",ht,"!!!"])
-			else:
-				table.append([at,"@",ht])
+				text.append("!!!")
+			table.append(text)
 		print(tabulate(table))
 
 	def _print_week_results(self, week):
-		if(week >= self.season.get_week()) or (week<0):
+		if(week > self.season.get_week()) or (week<0):
 			print("Please enter a valid week.")
+			return
+		results = self.season.get_week_results(week)
+		if(len(results)==0):
+			print("No games have been played this week.")
 			return
 		table = []
 		for result in self.season.get_week_results(week):
@@ -123,7 +135,7 @@ class SeasonShell(object):
 			asc = result.get_away_score()
 			hsc = result.get_home_score()
 			table.append([at,asc,ht,hsc])
-		print("Week {} Results\n".format(week+1))
+		print("Week {} Results".format(week+1))
 		print(tabulate(table))
 
 	def _advance_week(self, amount):
@@ -133,6 +145,25 @@ class SeasonShell(object):
 		for i in range(amount):
 			self.season.advance_week()
 		self._refresh()
+
+	def _play_individual_game(self, game_number):
+		if(game_number<0) or (game_number>len(self.season.get_week_matches())):
+			print("Please enter a valid game_number")
+			return
+		if(self.season.is_game_finished(game_number)):
+			print("Game already played.")
+			return
+		self.season.play_specific_game(game_number)
+		result = self.season.get_result(self.season.get_week(),game_number)
+		print(result.get_results())
+
+	def _play_all_games(self):
+		week = self.season.get_week()
+		for i in range(len(self.season.get_week_matches())):
+			if not(self.season.is_game_finished(i)):
+				self.season.play_specific_game(i)
+				result = self.season.get_result(week,i)
+				print(result.get_results())
 
 	def _begin_postseason(self):
 		if not (self.season.is_complete()):
