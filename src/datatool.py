@@ -1,4 +1,4 @@
-from models import *
+from models import Player,Team,League,DraftClass,Season,Postseason
 from game import GameResult
 import json
 
@@ -66,6 +66,11 @@ DC_NAME_LABEL = "class_name"
 DC_RESULTS_LABEL = "results"
 DC_CANDIDATES_LABEL = "candidates"
 DC_FINISHED_LABEL = "finished"
+
+def _to_tuple(s):
+		s = s.replace("(","").replace(")","")
+		l = s.split(",")
+		return (int(l[0]),int(l[1]))
 
 def _player_to_json(player):
 	data = {
@@ -136,20 +141,18 @@ def _season_to_json(season):
 		SEASON_STANDINGS_LABEL : season.standings,
 		SEASON_POSTSEASON_LABEL : None
 	}
+
 	jsonresults = {}
-	for game_number,result in season.results.items():
-		jsonresults[str(game_number)] = _game_result_to_json(result)
+	for key,result in season.results.items():
+		jsonresults[str(key)] = _game_result_to_json(result)
 	data[SEASON_RESULTS_LABEL] = jsonresults
+
 	if(season.postseason != None):
 		data[SEASON_POSTSEASON_LABEL] = _postseason_to_json(season.postseason)
+	
 	return data
 
 def _json_to_season(data):
-
-	def _to_tuple(s):
-		s = s.replace("(","").replace(")","")
-		l = s.split(",")
-		return (int(l[0]),int(l[1]))
 
 	league = load_league(data[SEASON_LEAGUENAME_LABEL])
 
@@ -160,14 +163,13 @@ def _json_to_season(data):
 			schedule[week][game] = tuple(schedule[week][game])
 
 	week = data[SEASON_WEEK_LABEL]
-
 	season = Season(league, schedule, week)
 
 	season.standings = data[SEASON_STANDINGS_LABEL]
 
 	results = {}
-	for game_number,jsonresult in data[SEASON_RESULTS_LABEL].items():
-		results[_to_tuple(game_number)] = _json_to_game_result(jsonresult)
+	for key,jsonresult in data[SEASON_RESULTS_LABEL].items():
+		results[_to_tuple(key)] = _json_to_game_result(jsonresult)
 	season.results = results
 
 	postseason = None
@@ -181,35 +183,42 @@ def _postseason_to_json(postseason):
 	data = {
 		PS_SEEDS_LABEL : postseason.seeds,
 		PS_BRACKET_LABEL : postseason.bracket,
-		PS_RESULTS_LABEL : [],
 		PS_CUR_ROUND_LABEL : postseason.cur_round,
 		PS_COMPLETE_LABEL : postseason.complete
 	}
+
 	jsonteams = {}
 	for team_name,team in postseason.teams.items():
 		jsonteams[team_name] = _team_to_json(team)
 	data[PS_TEAMS_LABEL] = jsonteams
-	for rnd in postseason.results:
-		rnd_results = []
-		for result in rnd:
-			rnd_results.append(_game_result_to_json(result))
-		data[PS_RESULTS_LABEL].append(rnd_results)
+
+	jsonresults = {}
+	for key,result in postseason.results.items():
+		jsonresults[str(key)] = _game_result_to_json(result)
+	data[PS_RESULTS_LABEL] = jsonresults
+
 	return data
 
 def _json_to_postseason(data):
+
 	seeds = data[PS_SEEDS_LABEL]
-	bracket = data[PS_BRACKET_LABEL]
 	cur_round = data[PS_CUR_ROUND_LABEL]
 	complete = data[PS_COMPLETE_LABEL]
-	results = []
-	for jsonrnd in data[PS_RESULTS_LABEL]:
-		rnd_results = []
-		for jsonresult in jsonrnd:
-			rnd_results.append(_json_to_game_result(jsonresult))
-		results.append(rnd_results)
+
+	bracket = data[PS_BRACKET_LABEL]
+	for rnd in range(len(bracket)):
+		for game in range(len(bracket[rnd])):
+			bracket[rnd][game][2] = tuple(bracket[rnd][game][2])
+			bracket[rnd][game] = tuple(bracket[rnd][game])
+
+	results = {}
+	for key, jsonresult in data[PS_RESULTS_LABEL].items():
+		results[_to_tuple(key)] = _json_to_game_result(jsonresult)
+
 	teams = {}
 	for team_name,jsonteam in data[PS_TEAMS_LABEL].items():
 		teams[team_name] = _json_to_team(jsonteam)
+
 	postseason = Postseason([])
 	postseason.seeds = seeds
 	postseason.bracket = bracket
@@ -217,6 +226,8 @@ def _json_to_postseason(data):
 	postseason.cur_round = cur_round
 	postseason.complete = complete
 	postseason.teams = teams
+	postseason.results = results
+
 	return postseason
 
 def _game_result_to_json(game_result):

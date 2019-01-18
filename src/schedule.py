@@ -92,3 +92,4 @@ def make_schedule(teams):
 			schedule[week][game].insert(2,(week,game))
 			schedule[week][game] = tuple(schedule[week][game])
 	return schedule
+	

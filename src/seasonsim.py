@@ -184,43 +184,41 @@ class PostseasonShell(object):
 
 	def _refresh(self):
 
-		def _print_bracket():
-
+		def print_results():
 			seeds = self.postseason.get_seeds()
-			rnd_count = 1
-
-			for rnd in self.postseason.get_results():
-				print("Round {}".format(rnd_count))
-				rnd_count += 1
+			for rnd in range(self.postseason.get_cur_round()):
+				results = self.postseason.get_round_results(rnd)
 				table = []
-				for result in rnd:
+				for result in results:
+					text = []
 					at = result.get_away_team()
-					atr = _team_with_rank(at, seeds[at])
+					at = _team_with_rank(at,seeds[at])
 					ht = result.get_home_team()
-					htr = _team_with_rank(ht, seeds[ht])
+					ht = _team_with_rank(ht,seeds[ht])
 					asc = result.get_away_score()
 					hsc = result.get_home_score()
-					table.append([atr,asc,htr,hsc])
+					table.append([at,asc,ht,hsc])
+				print("Round {}".format(rnd+1))
 				print(tabulate(table))
 				print("")
-
 			if(self.postseason.is_complete()):
 				print("Champion: {}".format(self.postseason.get_champion()))
-				return
 
-			print("Round {}".format(rnd_count))
-			cur_round_bracket = self.postseason.get_cur_round_bracket()
+		def print_bracket():
+			seeds = self.postseason.get_seeds()
 			table = []
-			for matchup in cur_round_bracket:
-				at = matchup[0]
-				at = _team_with_rank(at, seeds[at])
-				ht = matchup[1]
-				ht = _team_with_rank(ht, seeds[ht])
-				table.append([at,"@",ht])
+			for match in self.postseason.get_cur_round_bracket():
+				at = _team_with_rank(match[0],seeds[match[0]])
+				ht = _team_with_rank(match[1],seeds[match[1]])
+				game_number = match[2][1]+1
+				table.append([game_number,at,"@",ht])
+			print("Round {}".format(self.postseason.get_cur_round()+1))
 			print(tabulate(table))
-		
+
 		system("clear")
-		_print_bracket()
+		print_results()
+		if not(self.postseason.is_complete()):
+			print_bracket()
 
 	def _help(self):
 		table = []
@@ -233,12 +231,22 @@ class PostseasonShell(object):
 			cmd = _get_input()
 			if(cmd[0] == "adv"):
 				self._advance_round()
+			elif(cmd[0] == "play"):
+				self._play_individual_game(int(cmd[1])-1)
 			elif(cmd[0] == "help"):
 				self._help()
 			elif(cmd[0] == "back"):
 				return self.postseason
 			else:
 				print("Invalid command")
+
+	def _play_individual_game(self, game_number):
+		if(game_number<0) or (game_number>=len(self.postseason.get_cur_round_bracket())):
+			print("Please enter a valid game number.")
+			return
+		self.postseason.play_specific_game(game_number)
+		result = self.postseason.get_result(self.postseason.get_cur_round(),game_number)
+		print(result.get_results())
 
 	def _advance_round(self):
 		if(self.postseason.is_complete()):

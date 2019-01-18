@@ -223,13 +223,13 @@ class Season(object):
 		return ranking
 
 	def get_standings(self):
-		table = []
+		standings = []
 		for team_name,record in self.standings.items():
-			table.append([team_name, record[0], record[1]])
-		table.sort(key=lambda x: x[1],reverse=True)
-		for i in range(len(table)):
-			table[i].insert(0, i+1)
-		return table
+			standings.append([team_name, record[0], record[1]])
+		standings.sort(key=lambda x: x[1],reverse=True)
+		for i in range(len(standings)):
+			standings[i].insert(0, i+1)
+		return standings
 
 	def set_postseason(self, postseason):
 		if(self.is_complete()):
@@ -268,7 +268,7 @@ class Postseason(object):
 	def __init__(self, teams):
 		self.teams = {}
 		self.seeds = {}
-		self.results = []
+		self.results = {}
 		self.cur_round = 0
 		self.complete = False
 		for i in range(len(teams)):
@@ -276,56 +276,76 @@ class Postseason(object):
 			self.seeds[teams[i].get_team_name()] = i+1
 		self.bracket = [self._filter_bracket([team.get_team_name() for team in teams])]
 		
-
 	def _filter_bracket(self, bracket):
 		filt_bracket = []
 		bracket.sort(key=lambda x: self.seeds[x], reverse=False)
 		start = 0
 		end = len(bracket)-1
+		game_number = 0
 		while(start<end):
-			filt_bracket.append((bracket[end],bracket[start]))
+			key = (self.cur_round, game_number)
+			filt_bracket.append((bracket[end],bracket[start],key))
 			start += 1
 			end -= 1
+			game_number += 1
 		return filt_bracket
+
+	def get_cur_round(self):
+		return self.cur_round
 
 	def get_seeds(self):
 		return self.seeds
 
-	def get_results(self):
-		return self.results
+	def get_result(self, rnd, game_number):
+		key = (rnd,game_number)
+		return self.results[key]
+
+	def get_round_results(self, rnd):
+		results = []
+		for i in range(len(self.bracket[rnd])):
+			key = (rnd,i)
+			results.append(self.results[key])
+		return results
 
 	def get_cur_round_bracket(self):
 		return self.bracket[self.cur_round]
 
 	def get_champion(self):
 		if(self.is_complete):
-			return self.results[self.cur_round][0].get_winner()
+			key = (self.cur_round-1,0)
+			return self.results[key].get_winner()
 		return None
 
 	def is_complete(self):
 		return self.complete
 
+	def _play_game(self,match):
+		key = match[2]
+		if key in self.results:
+			return
+		away_team = self.teams[match[0]]
+		home_team = self.teams[match[1]]
+		result = game.play_game(away_team, home_team)
+		self.results[key] = result
+		return result
+
+	def play_specific_game(self, game_number):
+		match = self.bracket[self.cur_round][game_number]
+		self._play_game(match)
+
 	def advance_round(self):
-		next_bracket = []
-		round_results = []
 		cur_bracket = self.bracket[self.cur_round]
-		for matchup in cur_bracket:
-			away_team = self.teams[matchup[0]]
-			home_team = self.teams[matchup[1]]
-			result = game.play_game(away_team, home_team)
-			round_results.append(result)
-			next_bracket.append(result.get_winner())
-		self.results.append(round_results)
+		for match in cur_bracket:
+			self._play_game(match)
+		next_bracket = []
+		for i in range(len(self.bracket[self.cur_round])):
+			key = (self.cur_round,i)
+			next_bracket.append(self.results[key].get_winner())
+		self.cur_round += 1
 		if(len(next_bracket) == 1):
 			self.complete = True
 			return
 		self.bracket.append(self._filter_bracket(next_bracket))
-		self.cur_round += 1
-
-
-
-
-
 
 
 
