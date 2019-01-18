@@ -54,7 +54,8 @@ class SeasonShell(object):
 		table.append(["play all","Play the remaining games in the week"])
 		table.append(["rem","Get the number of weeks left"])
 		table.append(["up","View the week's upcoming games"])
-		table.append(["res X", "View the results of week X"])
+		table.append(["wres X", "View the results of week X"])
+		table.append(["gres X Y","View the results of week X, game Y"])
 		table.append(["save","Save the season"])
 		table.append(["ps","Load the postseason"])
 		table.append(["clear","Clear the previous commands"])
@@ -84,11 +85,13 @@ class SeasonShell(object):
 				self._print_upcoming_games()
 			elif(cmd[0] == "ps"):
 				self._begin_postseason()
-			elif(cmd[0] == "res"):
+			elif(cmd[0] == "wres"):
 				if(len(cmd) > 1):
 					self._print_week_results(int(cmd[1])-1)
 				else:
 					self._print_week_results(self.season.get_week())
+			elif(cmd[0] == "gres"):
+				self._print_game_result(int(cmd[1])-1,int(cmd[2])-1)
 			elif(cmd[0] == "help"):
 				self._help()
 			elif(cmd[0] == "clear"):
@@ -129,14 +132,22 @@ class SeasonShell(object):
 			print("No games have been played this week.")
 			return
 		table = []
-		for result in self.season.get_week_results(week):
+		for result, game_number in results:
 			at = result.get_away_team()
 			ht = result.get_home_team()
 			asc = result.get_away_score()
 			hsc = result.get_home_score()
-			table.append([at,asc,ht,hsc])
-		print("Week {} Results".format(week+1))
+			table.append([game_number+1,at,asc,ht,hsc])
+		print("\nWeek {} Results".format(week+1))
 		print(tabulate(table))
+
+	def _print_game_result(self, week, game_number):
+		if not(self.season.is_game_finished(week,game_number)):
+			print("This game has not been completed yet.")
+			return
+		result = self.season.get_result(week, game_number)
+		print("\nWeek {}, Game {} Result".format(week+1, game_number+1))
+		print(result.get_results())
 
 	def _advance_week(self, amount):
 		if(amount > self.season.get_remaining_weeks()):
@@ -150,18 +161,17 @@ class SeasonShell(object):
 		if(game_number<0) or (game_number>len(self.season.get_week_matches())):
 			print("Please enter a valid game_number")
 			return
-		if(self.season.is_game_finished(game_number)):
-			print("Game already played.")
-			return
-		self.season.play_specific_game(game_number)
-		result = self.season.get_result(self.season.get_week(),game_number)
-		print(result.get_results())
+		week = self.season.get_week()
+		self.season.play_specific_game(week,game_number)
+		result = self.season.get_result(week,game_number)
+		print("\n"+result.get_results())
 
 	def _play_all_games(self):
+		print("")
 		week = self.season.get_week()
 		for i in range(len(self.season.get_week_matches())):
-			if not(self.season.is_game_finished(i)):
-				self.season.play_specific_game(i)
+			if not(self.season.is_game_finished(week,i)):
+				self.season.play_specific_game(week,i)
 				result = self.season.get_result(week,i)
 				print(result.get_results())
 
@@ -189,7 +199,7 @@ class PostseasonShell(object):
 			for rnd in range(self.postseason.get_cur_round()):
 				results = self.postseason.get_round_results(rnd)
 				table = []
-				for result in results:
+				for result, game_number in results:
 					text = []
 					at = result.get_away_team()
 					at = _team_with_rank(at,seeds[at])
@@ -197,7 +207,7 @@ class PostseasonShell(object):
 					ht = _team_with_rank(ht,seeds[ht])
 					asc = result.get_away_score()
 					hsc = result.get_home_score()
-					table.append([at,asc,ht,hsc])
+					table.append([game_number+1,at,asc,ht,hsc])
 				print("Round {}".format(rnd+1))
 				print(tabulate(table))
 				print("")
@@ -223,7 +233,11 @@ class PostseasonShell(object):
 	def _help(self):
 		table = []
 		table.append(["adv","Advance to the next round"])
+		table.append(["play X", "Play game x in the current round"])
+		table.append(["gres X Y", "View the results of round X, game Y"])
+		table.append(["clear","Clear the previous commands"])
 		table.append(["back","Return to the previous screen"])
+		print(tabulate(table))
 
 	def run(self):
 		self._refresh()
@@ -233,12 +247,25 @@ class PostseasonShell(object):
 				self._advance_round()
 			elif(cmd[0] == "play"):
 				self._play_individual_game(int(cmd[1])-1)
+			elif(cmd[0] == "gres"):
+				self._print_game_result(int(cmd[1])-1,int(cmd[2])-1)
+			elif(cmd[0] == "clear"):
+				self._refresh()
 			elif(cmd[0] == "help"):
 				self._help()
 			elif(cmd[0] == "back"):
 				return self.postseason
 			else:
 				print("Invalid command")
+
+	def _print_game_result(self, rnd, game_number):
+		if not(self.postseason.is_game_finished(rnd,game_number)):
+			print("This game has not been completed yet.")
+			return
+		result = self.postseason.get_result(rnd, game_number)
+		print("\nRound {}, Game {} Result".format(rnd+1, game_number+1))
+		print(result.get_results())
+
 
 	def _play_individual_game(self, game_number):
 		if(game_number<0) or (game_number>=len(self.postseason.get_cur_round_bracket())):

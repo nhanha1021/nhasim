@@ -41,22 +41,22 @@ class Team(object):
 
 	def __init__(self, teamName):
 		self.teamName = teamName
-		self.cur_roundoster = {}
+		self.roster = {}
 
 	def get_team_name(self):
 		return self.teamName
 
 	def get_player(self, playerName):
-		return self.cur_roundoster[_to_key(playerName)]
+		return self.roster[_to_key(playerName)]
 
 	def add_player(self, player):
-		self.cur_roundoster[_to_key(player.get_full_name())] = player
+		self.roster[_to_key(player.get_full_name())] = player
 
 	def remove_player(self, playerName):
-		del self.cur_roundoster[_to_key(playerName)]
+		del self.roster[_to_key(playerName)]
 
 	def get_all_players(self):
-		return self.cur_roundoster.values()
+		return self.roster.values()
 
 	def avg_offense(self):
 		try:
@@ -89,12 +89,6 @@ class League(object):
 	def get_team(self,teamName):
 		return self.teamRoster[_to_key(teamName)]
 
-	def get_draft_class(self):
-		return self.draft_class
-
-	def set_draft_class(self, draft_class):
-		self.draft_class = draft_class
-
 	def add_team(self, team):
 		self.teamRoster[_to_key(team.teamName)] = team
 
@@ -103,6 +97,12 @@ class League(object):
 
 	def get_all_teams(self):
 		return self.teamRoster.values()
+	
+	def get_draft_class(self):
+		return self.draft_class
+
+	def set_draft_class(self, draft_class):
+		self.draft_class = draft_class
 
 	def is_picks_added(self):
 		return self.picks_added
@@ -206,7 +206,7 @@ class Season(object):
 		for match in self.schedule[week]:
 			key = match[2]
 			if key in self.results:
-				results.append(self.results[key])
+				results.append((self.results[key],key[1]))
 		return results
 
 	def get_result(self, week, game_number):
@@ -238,8 +238,8 @@ class Season(object):
 	def get_postseason(self):
 		return self.postseason
 
-	def is_game_finished(self, game_number):
-		if (self.week, game_number) in self.results:
+	def is_game_finished(self, week, game_number):
+		if (week, game_number) in self.results:
 			return True
 		return False
 
@@ -254,8 +254,8 @@ class Season(object):
 		self.standings[result.get_loser()][1] += 1
 		self.results[key] = result
 
-	def play_specific_game(self, game_number):
-		match = self.schedule[self.week][game_number]
+	def play_specific_game(self, week, game_number):
+		match = self.schedule[week][game_number]
 		self._play_game(match)
 		
 	def advance_week(self):
@@ -293,31 +293,37 @@ class Postseason(object):
 	def get_cur_round(self):
 		return self.cur_round
 
+	def is_complete(self):
+		return self.complete
+
 	def get_seeds(self):
 		return self.seeds
 
-	def get_result(self, rnd, game_number):
-		key = (rnd,game_number)
-		return self.results[key]
+	def get_cur_round_bracket(self):
+		return self.bracket[self.cur_round]
 
 	def get_round_results(self, rnd):
 		results = []
 		for i in range(len(self.bracket[rnd])):
 			key = (rnd,i)
-			results.append(self.results[key])
+			results.append((self.results[key],key[1]))
 		return results
 
-	def get_cur_round_bracket(self):
-		return self.bracket[self.cur_round]
+	def get_result(self, rnd, game_number):
+		key = (rnd,game_number)
+		return self.results[key]
+
+	def is_game_finished(self, rnd, game_number):
+		key = (rnd, game_number)
+		if key in self.results:
+			return True
+		return False
 
 	def get_champion(self):
 		if(self.is_complete):
 			key = (self.cur_round-1,0)
 			return self.results[key].get_winner()
 		return None
-
-	def is_complete(self):
-		return self.complete
 
 	def _play_game(self,match):
 		key = match[2]
@@ -327,7 +333,6 @@ class Postseason(object):
 		home_team = self.teams[match[1]]
 		result = game.play_game(away_team, home_team)
 		self.results[key] = result
-		return result
 
 	def play_specific_game(self, game_number):
 		match = self.bracket[self.cur_round][game_number]
@@ -338,7 +343,7 @@ class Postseason(object):
 		for match in cur_bracket:
 			self._play_game(match)
 		next_bracket = []
-		for i in range(len(self.bracket[self.cur_round])):
+		for i in range(len(cur_bracket)):
 			key = (self.cur_round,i)
 			next_bracket.append(self.results[key].get_winner())
 		self.cur_round += 1
