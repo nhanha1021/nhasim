@@ -198,6 +198,15 @@ class Season(object):
 			return True
 		return False
 
+	def get_team_matches(self,team_name):
+		team_name = self.league.get_team(team_name).get_team_name()
+		s = []
+		for week in self.schedule:
+			for game in week:
+				if(game[0] == team_name) or (game[1] == team_name):
+					s.append(game)
+		return s
+
 	def get_week_matches(self):
 		return self.schedule[self.week]
 

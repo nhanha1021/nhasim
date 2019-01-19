@@ -1,13 +1,25 @@
 import datatool, game, schedule
 from models import *
 
-league = datatool.load_league("USFL")
-s = schedule.make_schedule(league.get_all_teams())
-season = Season(league,s,0)
-datatool.write_season(season)
+teams = [team.get_team_name() for team in datatool.load_league("USFL").get_all_teams()]
+schedule = schedule.make_schedule(teams)
 
-season = datatool.load_season("USFL")
-for week in season.schedule:
+for week in schedule:
 	for game in week:
 		print game
 
+tdict = {}
+for team in teams:
+	tdict[team] = [0,0]
+
+
+for team in teams:
+	for week in schedule:
+		for game in week:
+			if(team == game[0]):
+				tdict[team][0] += 1
+			if(team == game[1]):
+				tdict[team][1] += 1
+
+for key, value in tdict.items():
+	print key,value

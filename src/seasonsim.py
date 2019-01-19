@@ -21,7 +21,7 @@ def _initialize():
 		return SeasonShell(season)
 	except(IOError):
 		league = datatool.load_league(sys.argv[1])
-		season_schedule = schedule.make_schedule(league.get_all_teams())
+		season_schedule = schedule.make_schedule([team.get_team_name() for team in league.get_all_teams()])
 		season = Season(league, season_schedule, 0)
 		return SeasonShell(season)
 
@@ -92,6 +92,8 @@ class SeasonShell(object):
 					self._print_week_results(self.season.get_week())
 			elif(cmd[0] == "gres"):
 				self._print_game_result(int(cmd[1])-1,int(cmd[2])-1)
+			elif(cmd[0] == "sched"):
+				self._print_team_games(cmd[1])
 			elif(cmd[0] == "help"):
 				self._help()
 			elif(cmd[0] == "clear"):
@@ -121,6 +123,29 @@ class SeasonShell(object):
 			if(_is_big_game(rankings[match[0]],rankings[match[1]])):
 				text.append("!!!")
 			table.append(text)
+		print(tabulate(table))
+
+	def _print_team_games(self,team_name):
+		s = self.season.get_team_matches(team_name)
+		team_name = self.season.get_league().get_team(team_name).get_team_name()
+		table = []
+		for game in s:
+			week = game[2][0]
+			game_num = game[2][1]
+			if(self.season.is_game_finished(week,game_num)):
+				result = self.season.get_result(week,game_num)
+				if(result.get_winner() == team_name):
+					r = "W"
+				else:
+					r = "L"
+				at = result.get_away_team()
+				ht = result.get_home_team()
+				asc = result.get_away_score()
+				hsc = result.get_home_score()
+				table.append([week+1,at,asc,ht,hsc,r])
+			else:
+				table.append([week+1,game[0],"@",game[1]])
+		print("\n{}'s Schedule".format(team_name))
 		print(tabulate(table))
 
 	def _print_week_results(self, week):
