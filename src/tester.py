@@ -1,13 +1,25 @@
-import game, rostertool, newschedule
+import datatool, game, schedule
+from models import *
 
-league = rostertool.load_league("USFL")
-schedule = newschedule.make_schedule(league.get_all_teams())
+teams = [team.get_team_name() for team in datatool.load_league("USFL").get_all_teams()]
+schedule = schedule.make_schedule(teams)
 
-count = 0
 for week in schedule:
 	for game in week:
-		print(game)
-		count+=1
+		print game
 
-print count
+tdict = {}
+for team in teams:
+	tdict[team] = [0,0]
 
+
+for team in teams:
+	for week in schedule:
+		for game in week:
+			if(team == game[0]):
+				tdict[team][0] += 1
+			if(team == game[1]):
+				tdict[team][1] += 1
+
+for key, value in tdict.items():
+	print key,value

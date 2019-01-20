@@ -4,9 +4,6 @@ def play_game(away_team, home_team):
 
 	def play(away_team, home_team):
 
-		away_events = []
-		home_events = []
-
 		def calc_event(player, team_defense):
 			d_sample = random.sample(team_defense, 3)
 			d_sum = sum(player.get_defense() for player in d_sample)
@@ -15,12 +12,15 @@ def play_game(away_team, home_team):
 				return (1, player.get_full_name())
 			return (0, player.get_full_name())
 
+		away_events = []
+		home_events = []
+
 		for player in away_team.get_all_players():
-			point, name = calc_event(player, home_team.get_all_players())
-			away_events.append([point, name])
+			event = calc_event(player, home_team.get_all_players())
+			away_events.append(event)
 		for player in home_team.get_all_players():
-			point, name = calc_event(player, away_team.get_all_players())
-			home_events.append([point, name])
+			event = calc_event(player, away_team.get_all_players())
+			home_events.append(event)
 
 		return (away_events, home_events)
 
@@ -42,12 +42,53 @@ def play_game(away_team, home_team):
 		away_score += calc_points(away_events)
 		home_score += calc_points(home_events)
 	while(away_score == home_score):
-		play(away_team, home_team)
+		outcome = play(away_team, home_team)
 		away_events += outcome[0]
 		home_events += outcome[1]
 		away_score += calc_points(away_events)
 		home_score += calc_points(home_events)		
 
-	print("{}:{} {}:{}".format(away_team.get_team_name(), away_score, home_team.get_team_name(), home_score))
+	return GameResult(away_team.get_team_name(), away_score, away_events, home_team.get_team_name(), home_score, home_events)
+
+class GameResult(object):
+
+	def __init__(self, away_team_name, away_score, away_events, home_team_name, home_score, home_events):
+		self.away_team_name = away_team_name
+		self.away_score = away_score
+		self.away_events = away_events
+		self.home_team_name = home_team_name
+		self.home_score = home_score
+		self.home_events = home_events
+
+	def get_winner(self):
+		if(self.away_score > self.home_score):
+			return self.away_team_name
+		else:
+			return self.home_team_name
+
+	def get_loser(self):
+		if(self.away_score < self.home_score):
+			return self.away_team_name
+		else:
+			return self.home_team_name
+
+	def get_away_team(self):
+		return self.away_team_name
+
+	def get_home_team(self):
+		return self.home_team_name
+
+	def get_away_score(self):
+		return self.away_score
+
+	def get_home_score(self):
+		return self.home_score
+
+	def get_results(self):
+		return ("{}: {} - {}: {}".format(self.away_team_name, self.away_score, self.home_team_name, self.home_score))
+
+
+
+
 
 
