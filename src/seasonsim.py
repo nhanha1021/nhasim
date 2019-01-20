@@ -66,42 +66,45 @@ class SeasonShell(object):
 		self._refresh()
 		while(True):
 			cmd = _get_input()
-			if(cmd[0] == "adv"):
-				if(len(cmd) > 1):
-					self._advance_week(int(cmd[1]))
+			try:
+				if(cmd[0] == "adv"):
+					if(len(cmd) > 1):
+						self._advance_week(int(cmd[1]))
+					else:
+						self._advance_week(1)
+				elif(cmd[0] == "play"):
+					if(cmd[1] == "all"):
+						self._play_all_games()
+					else:
+						self._play_individual_game(int(cmd[1])-1)
+				elif(cmd[0] == "rem"):
+					print(self.season.get_remaining_weeks())
+				elif(cmd[0] == "save"):
+					datatool.write_season(self.season)
+					print("Saved season to disk.")
+				elif(cmd[0] == "up"):
+					self._print_upcoming_games()
+				elif(cmd[0] == "ps"):
+					self._begin_postseason()
+				elif(cmd[0] == "wres"):
+					if(len(cmd) > 1):
+						self._print_week_results(int(cmd[1])-1)
+					else:
+						self._print_week_results(self.season.get_week())
+				elif(cmd[0] == "gres"):
+					self._print_game_result(int(cmd[1])-1,int(cmd[2])-1)
+				elif(cmd[0] == "sched"):
+					self._print_team_games(cmd[1])
+				elif(cmd[0] == "help"):
+					self._help()
+				elif(cmd[0] == "clear"):
+					self._refresh()
+				elif(cmd[0] == "quit"):
+					break
 				else:
-					self._advance_week(1)
-			elif(cmd[0] == "play"):
-				if(cmd[1] == "all"):
-					self._play_all_games()
-				else:
-					self._play_individual_game(int(cmd[1])-1)
-			elif(cmd[0] == "rem"):
-				print(self.season.get_remaining_weeks())
-			elif(cmd[0] == "save"):
-				datatool.write_season(self.season)
-				print("Saved season to disk.")
-			elif(cmd[0] == "up"):
-				self._print_upcoming_games()
-			elif(cmd[0] == "ps"):
-				self._begin_postseason()
-			elif(cmd[0] == "wres"):
-				if(len(cmd) > 1):
-					self._print_week_results(int(cmd[1])-1)
-				else:
-					self._print_week_results(self.season.get_week())
-			elif(cmd[0] == "gres"):
-				self._print_game_result(int(cmd[1])-1,int(cmd[2])-1)
-			elif(cmd[0] == "sched"):
-				self._print_team_games(cmd[1])
-			elif(cmd[0] == "help"):
-				self._help()
-			elif(cmd[0] == "clear"):
-				self._refresh()
-			elif(cmd[0] == "quit"):
-				break
-			else:
-				print("Invalid command")
+					print("Invalid command")
+			except(IndexError,ValueError):
+				print("Error parsing command.")
 
 	def _print_upcoming_games(self):
 
@@ -123,6 +126,7 @@ class SeasonShell(object):
 			if(_is_big_game(rankings[match[0]],rankings[match[1]])):
 				text.append("!!!")
 			table.append(text)
+		print("\nWeek {} Games".format(self.season.get_week()))
 		print(tabulate(table))
 
 	def _print_team_games(self,team_name):
@@ -268,20 +272,23 @@ class PostseasonShell(object):
 		self._refresh()
 		while(True):
 			cmd = _get_input()
-			if(cmd[0] == "adv"):
-				self._advance_round()
-			elif(cmd[0] == "play"):
-				self._play_individual_game(int(cmd[1])-1)
-			elif(cmd[0] == "gres"):
-				self._print_game_result(int(cmd[1])-1,int(cmd[2])-1)
-			elif(cmd[0] == "clear"):
-				self._refresh()
-			elif(cmd[0] == "help"):
-				self._help()
-			elif(cmd[0] == "back"):
-				return self.postseason
-			else:
-				print("Invalid command")
+			try:
+				if(cmd[0] == "adv"):
+					self._advance_round()
+				elif(cmd[0] == "play"):
+					self._play_individual_game(int(cmd[1])-1)
+				elif(cmd[0] == "gres"):
+					self._print_game_result(int(cmd[1])-1,int(cmd[2])-1)
+				elif(cmd[0] == "clear"):
+					self._refresh()
+				elif(cmd[0] == "help"):
+					self._help()
+				elif(cmd[0] == "back"):
+					return self.postseason
+				else:
+					print("Invalid command")
+			except(IndexError,ValueError):
+				print("Error parsing command.")
 
 	def _print_game_result(self, rnd, game_number):
 		if not(self.postseason.is_game_finished(rnd,game_number)):
